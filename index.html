@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NSE Options Intelligence Dashboard</title>
+<link rel="stylesheet" href="css/style.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/technicalindicators@3.1.0/browser.js"></script>
+</head>
+<body>
+<div class="scanline"></div>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">NSE<em>Intelligence</em></span>
+    </div>
+    <div class="market-status" id="marketStatus">
+      <span class="status-dot"></span>
+      <span id="statusText">Fetching...</span>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="technicals">Technicals</button>
+      <button class="tab-btn" data-tab="options">Options Chain</button>
+      <button class="tab-btn" data-tab="sentiment">Sentiment</button>
+      <button class="tab-btn" data-tab="signals">AI Signals</button>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <div class="last-updated">Updated: <span id="lastUpdated">--</span></div>
+    <button class="refresh-btn" id="refreshBtn" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+</header>
+
+<main class="dashboard">
+
+  <!-- OVERVIEW TAB -->
+  <section class="tab-content active" id="tab-overview">
+    <div class="indices-grid">
+      <div class="index-card" id="card-nifty50" data-symbol="^NSEI" data-name="Nifty 50">
+        <div class="card-header">
+          <span class="index-name">Nifty 50</span>
+          <span class="index-badge">NSE</span>
+        </div>
+        <div class="card-price" id="price-nifty50">--</div>
+        <div class="card-change" id="change-nifty50">--</div>
+        <div class="card-meta">
+          <span>H: <span id="high-nifty50">--</span></span>
+          <span>L: <span id="low-nifty50">--</span></span>
+        </div>
+        <div class="mini-chart" id="mini-nifty50"></div>
+        <button class="analyze-btn" onclick="showChart('NIFTY50','^NSEI')">Deep Analyze →</button>
+      </div>
+      <div class="index-card" id="card-banknifty" data-symbol="^NSEBANK" data-name="Bank Nifty">
+        <div class="card-header">
+          <span class="index-name">Bank Nifty</span>
+          <span class="index-badge">NSE</span>
+        </div>
+        <div class="card-price" id="price-banknifty">--</div>
+        <div class="card-change" id="change-banknifty">--</div>
+        <div class="card-meta">
+          <span>H: <span id="high-banknifty">--</span></span>
+          <span>L: <span id="low-banknifty">--</span></span>
+        </div>
+        <div class="mini-chart" id="mini-banknifty"></div>
+        <button class="analyze-btn" onclick="showChart('BANKNIFTY','^NSEBANK')">Deep Analyze →</button>
+      </div>
+      <div class="index-card" id="card-sensex" data-symbol="^BSESN" data-name="Sensex">
+        <div class="card-header">
+          <span class="index-name">Sensex</span>
+          <span class="index-badge">BSE</span>
+        </div>
+        <div class="card-price" id="price-sensex">--</div>
+        <div class="card-change" id="change-sensex">--</div>
+        <div class="card-meta">
+          <span>H: <span id="high-sensex">--</span></span>
+          <span>L: <span id="low-sensex">--</span></span>
+        </div>
+        <div class="mini-chart" id="mini-sensex"></div>
+        <button class="analyze-btn" onclick="showChart('SENSEX','^BSESN')">Deep Analyze →</button>
+      </div>
+      <div class="index-card" id="card-finnifty" data-symbol="NIFTY_FIN_SERVICE.NS" data-name="Fin Nifty">
+        <div class="card-header">
+          <span class="index-name">Fin Nifty</span>
+          <span class="index-badge">NSE</span>
+        </div>
+        <div class="card-price" id="price-finnifty">--</div>
+        <div class="card-change" id="change-finnifty">--</div>
+        <div class="card-meta">
+          <span>H: <span id="high-finnifty">--</span></span>
+          <span>L: <span id="low-finnifty">--</span></span>
+        </div>
+        <div class="mini-chart" id="mini-finnifty"></div>
+        <button class="analyze-btn" onclick="showChart('FINNIFTY','NIFTY_FIN_SERVICE.NS')">Deep Analyze →</button>
+      </div>
+      <div class="index-card" id="card-midcap" data-symbol="^CNXMIDCAP" data-name="Mid Cap Nifty">
+        <div class="card-header">
+          <span class="index-name">Mid Cap Nifty</span>
+          <span class="index-badge">NSE</span>
+        </div>
+        <div class="card-price" id="price-midcap">--</div>
+        <div class="card-change" id="change-midcap">--</div>
+        <div class="card-meta">
+          <span>H: <span id="high-midcap">--</span></span>
+          <span>L: <span id="low-midcap">--</span></span>
+        </div>
+        <div class="mini-chart" id="mini-midcap"></div>
+        <button class="analyze-btn" onclick="showChart('MIDCAP','^CNXMIDCAP')">Deep Analyze →</button>
+      </div>
+    </div>
+
+    <div class="overview-bottom">
+      <div class="vix-panel panel">
+        <div class="panel-title">India VIX</div>
+        <div class="vix-value" id="vixValue">--</div>
+        <div class="vix-label" id="vixLabel">Loading...</div>
+        <div class="vix-bar-track"><div class="vix-bar-fill" id="vixBar" style="width:0%"></div></div>
+        <div class="vix-scale"><span>Low (0)</span><span>High (40+)</span></div>
+      </div>
+      <div class="breadth-panel panel">
+        <div class="panel-title">Market Breadth</div>
+        <div class="breadth-row">
+          <span class="breadth-label">Advance/Decline</span>
+          <div class="breadth-bar-wrap">
+            <div class="breadth-adv" id="advBar" style="width:50%"></div>
+            <div class="breadth-dec" id="decBar" style="width:50%"></div>
+          </div>
+        </div>
+        <div class="breadth-nums">
+          <span class="up">▲ <span id="advCount">--</span> Adv</span>
+          <span class="down">▼ <span id="decCount">--</span> Dec</span>
+          <span class="neutral">— <span id="unchCount">--</span> Unch</span>
+        </div>
+      </div>
+      <div class="fii-panel panel">
+        <div class="panel-title">FII / DII Activity (Today)</div>
+        <div class="fii-row">
+          <div class="fii-entity">
+            <span class="fii-name">FII</span>
+            <span class="fii-net" id="fiiNet">Loading...</span>
+          </div>
+          <div class="fii-entity">
+            <span class="fii-name">DII</span>
+            <span class="fii-net" id="diiNet">Loading...</span>
+          </div>
+        </div>
+        <div class="fii-note" id="fiiNote">Data from NSE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNICALS TAB -->
+  <section class="tab-content" id="tab-technicals">
+    <div class="technicals-layout">
+      <div class="chart-controls panel">
+        <div class="panel-title">Chart Analysis</div>
+        <select class="ctrl-select" id="techSymbol" onchange="loadTechChart()">
+          <option value="^NSEI|NIFTY50">Nifty 50</option>
+          <option value="^NSEBANK|BANKNIFTY">Bank Nifty</option>
+          <option value="^BSESN|SENSEX">Sensex</option>
+          <option value="NIFTY_FIN_SERVICE.NS|FINNIFTY">Fin Nifty</option>
+          <option value="^CNXMIDCAP|MIDCAP">Mid Cap Nifty</option>
+        </select>
+        <select class="ctrl-select" id="techInterval" onchange="loadTechChart()">
+          <option value="1d">Daily</option>
+          <option value="1wk">Weekly</option>
+          <option value="1mo">Monthly</option>
+        </select>
+        <div class="indicator-toggles">
+          <label><input type="checkbox" id="tog-ema20" checked onchange="renderIndicators()"> EMA 20</label>
+          <label><input type="checkbox" id="tog-ema50" checked onchange="renderIndicators()"> EMA 50</label>
+          <label><input type="checkbox" id="tog-bb" onchange="renderIndicators()"> Bollinger Bands</label>
+        </div>
+      </div>
+      <div class="main-chart-container panel" id="mainChartContainer">
+        <div class="chart-placeholder">Select an index to load chart</div>
+      </div>
+    </div>
+
+    <div class="indicator-panels">
+      <div class="ind-panel panel">
+        <div class="ind-header">
+          <span class="ind-name">RSI (14)</span>
+          <span class="ind-value" id="rsiValue">--</span>
+        </div>
+        <div class="ind-bar-track">
+          <div class="ind-bar-fill rsi-fill" id="rsiBar" style="width:50%"></div>
+          <div class="rsi-zones">
+            <div class="rsi-ob" style="left:70%;width:30%"></div>
+            <div class="rsi-os" style="left:0;width:30%"></div>
+          </div>
+        </div>
+        <div class="ind-scale"><span>Oversold (30)</span><span>Overbought (70)</span></div>
+        <div class="ind-signal" id="rsiSignal">--</div>
+      </div>
+      <div class="ind-panel panel">
+        <div class="ind-header">
+          <span class="ind-name">MACD</span>
+          <span class="ind-value" id="macdValue">--</span>
+        </div>
+        <div class="macd-bars" id="macdBars"></div>
+        <div class="ind-signal" id="macdSignal">--</div>
+      </div>
+      <div class="ind-panel panel">
+        <div class="ind-header">
+          <span class="ind-name">Bollinger Bands</span>
+          <span class="ind-value" id="bbValue">--</span>
+        </div>
+        <div class="bb-visual" id="bbVisual"></div>
+        <div class="ind-signal" id="bbSignal">--</div>
+      </div>
+      <div class="ind-panel panel">
+        <div class="ind-header">
+          <span class="ind-name">EMA Trend</span>
+          <span class="ind-value" id="emaValue">--</span>
+        </div>
+        <div class="ema-trend" id="emaTrend"></div>
+        <div class="ind-signal" id="emaSignal">--</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPTIONS CHAIN TAB -->
+  <section class="tab-content" id="tab-options">
+    <div class="options-header-row">
+      <select class="ctrl-select" id="optSymbol" onchange="loadOptionsChain()">
+        <option value="NIFTY">Nifty 50</option>
+        <option value="BANKNIFTY">Bank Nifty</option>
+        <option value="SENSEX">Sensex</option>
+        <option value="FINNIFTY">Fin Nifty</option>
+        <option value="MIDCPNIFTY">Mid Cap Nifty</option>
+      </select>
+      <select class="ctrl-select" id="optExpiry" onchange="loadOptionsChain()">
+        <option>Loading expiries...</option>
+      </select>
+      <div class="oi-summary">
+        <div class="oi-stat">PCR: <strong id="pcrValue">--</strong></div>
+        <div class="oi-stat">Max Pain: <strong id="maxPainValue">--</strong></div>
+        <div class="oi-stat">ATM: <strong id="atmValue">--</strong></div>
+      </div>
+    </div>
+
+    <div class="options-layout">
+      <div class="panel oi-chart-panel">
+        <div class="panel-title">Open Interest — CE vs PE by Strike</div>
+        <div id="oiChartContainer" style="height:280px;"></div>
+      </div>
+      <div class="panel oi-chart-panel">
+        <div class="panel-title">OI Change — Buildup Analysis</div>
+        <div id="oiChangeContainer" style="height:280px;"></div>
+      </div>
+    </div>
+
+    <div class="panel options-table-panel">
+      <div class="panel-title">Options Chain (ATM ± 10 Strikes)</div>
+      <div class="table-scroll">
+        <table class="options-table" id="optionsTable">
+          <thead>
+            <tr>
+              <th colspan="5" class="ce-header">CALL</th>
+              <th class="strike-header">Strike</th>
+              <th colspan="5" class="pe-header">PUT</th>
+            </tr>
+            <tr>
+              <th>OI</th><th>OI Chg</th><th>Volume</th><th>IV</th><th>LTP</th>
+              <th class="strike-header">--</th>
+              <th>LTP</th><th>IV</th><th>Volume</th><th>OI Chg</th><th>OI</th>
+            </tr>
+          </thead>
+          <tbody id="optionsBody">
+            <tr><td colspan="11" class="loading-row">Select index to load options chain...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SENTIMENT TAB -->
+  <section class="tab-content" id="tab-sentiment">
+    <div class="sentiment-grid">
+      <div class="panel sent-panel">
+        <div class="panel-title">FII/DII Daily Activity</div>
+        <div id="fiiChartContainer" style="height:220px;"></div>
+        <table class="sent-table" id="fiiTable">
+          <thead><tr><th>Date</th><th>FII Buy</th><th>FII Sell</th><th>FII Net</th><th>DII Buy</th><th>DII Sell</th><th>DII Net</th></tr></thead>
+          <tbody id="fiiBody"><tr><td colspan="7" class="loading-row">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="panel sent-panel">
+        <div class="panel-title">India VIX — 30 Day Trend</div>
+        <div id="vixChartContainer" style="height:220px;"></div>
+        <div class="vix-interpretation" id="vixInterpret">Loading VIX data...</div>
+      </div>
+      <div class="panel sent-panel">
+        <div class="panel-title">Market Sentiment Score</div>
+        <div class="sentiment-gauge" id="sentGauge">
+          <svg viewBox="0 0 200 120" width="200">
+            <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#1a1a2e" stroke-width="16" stroke-linecap="round"/>
+            <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="url(#gaugeGrad)" stroke-width="14" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#e74c3c"/>
+                <stop offset="50%" style="stop-color:#f39c12"/>
+                <stop offset="100%" style="stop-color:#27ae60"/>
+              </linearGradient>
+            </defs>
+            <line id="gaugeNeedle" x1="100" y1="100" x2="100" y2="30" stroke="#fff" stroke-width="2" stroke-linecap="round" transform="rotate(0,100,100)"/>
+            <circle cx="100" cy="100" r="4" fill="#fff"/>
+          </svg>
+          <div class="gauge-label" id="gaugeLabel">--</div>
+          <div class="gauge-score" id="gaugeScore">--/100</div>
+        </div>
+        <div class="sentiment-factors" id="sentFactors"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI SIGNALS TAB -->
+  <section class="tab-content" id="tab-signals">
+    <div class="signals-controls">
+      <select class="ctrl-select" id="sigSymbol">
+        <option value="NIFTY50">Nifty 50</option>
+        <option value="BANKNIFTY">Bank Nifty</option>
+        <option value="SENSEX">Sensex</option>
+        <option value="FINNIFTY">Fin Nifty</option>
+        <option value="MIDCAP">Mid Cap Nifty</option>
+      </select>
+      <select class="ctrl-select" id="sigStrategy">
+        <option value="safe">Safe (Low Risk)</option>
+        <option value="moderate">Moderate Risk</option>
+        <option value="aggressive">Aggressive</option>
+      </select>
+      <button class="generate-btn" onclick="generateSignal()">Generate AI Signal ↗</button>
+    </div>
+
+    <div class="signals-layout">
+      <div class="signal-card-main panel" id="signalMain">
+        <div class="signal-placeholder">
+          <div class="signal-icon">◈</div>
+          <p>Select an index and click Generate AI Signal</p>
+          <p class="sig-note">AI analyzes RSI, MACD, Bollinger Bands, OI data, VIX and FII/DII sentiment to give entry/exit recommendations.</p>
+        </div>
+      </div>
+      <div class="signal-history panel">
+        <div class="panel-title">Signal History</div>
+        <div id="signalHistory">
+          <p class="no-history">No signals generated yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer panel">
+      ⚠ <strong>Disclaimer:</strong> These signals are generated by AI for educational purposes only. Options trading involves substantial risk of loss. This is NOT financial advice. Always consult a SEBI-registered advisor before trading.
+    </div>
+  </section>
+
+</main>
+
+<!-- Chart Modal -->
+<div class="modal-overlay" id="chartModal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span id="modalTitle">Chart</span>
+      <button onclick="document.getElementById('chartModal').classList.remove('open')">✕</button>
+    </div>
+    <div id="modalChartContainer" style="height:400px;"></div>
+    <div id="modalIndicators"></div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/indicators.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/options.js"></script>
+<script src="js/sentiment.js"></script>
+<script src="js/signals.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
