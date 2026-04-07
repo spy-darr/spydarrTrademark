@@ -47,7 +47,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .btn-ref:disabled{opacity:.3;cursor:not-allowed}
 
 /* DATA BANNER */
-.dbanner{display:flex;align-items:center;gap:8px;padding:5px 20px;font-size:11px;border-bottom:1px solid var(--b1);background:var(--bg1)}
+.dbanner{display:flex;align-items:center;gap:8px;padding:5px 20px;font-size:11px;border-bottom:1px solid var(--b1);background:var(--bg1);min-height:28px}
 .dbanner.live{color:var(--gn)}.dbanner.demo{color:var(--am)}.dbanner.loading{color:var(--t2)}
 .ddot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
@@ -317,20 +317,21 @@ canvas.mc{width:100%;height:48px;display:block;margin-bottom:7px}
   </div>
 </header>
 
-<!-- DATA STATUS BANNER + INLINE PROXY INPUT -->
-<div id="bannerWrap">
-  <div class="dbanner loading" id="dbanner" style="flex-wrap:wrap;gap:6px">
-    <div class="ddot" id="ddot" style="background:var(--t2)"></div>
-    <span id="dbtxt">Fetching live market data...</span>
-    <!-- Inline GAS URL input — always visible in demo mode -->
-    <div id="gasInline" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto">
-      <span style="font-size:11px;color:var(--am);white-space:nowrap">📋 Paste Google Apps Script URL for live data:</span>
-      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec"
-        style="background:var(--bg0);border:1px solid var(--am);color:var(--t1);font-family:var(--mo);font-size:11px;padding:4px 10px;border-radius:var(--r);width:340px;outline:none"/>
-      <button onclick="saveGasUrl()" style="background:var(--am);color:var(--bg0);border:none;font-family:var(--mo);font-size:11px;font-weight:600;padding:4px 12px;border-radius:var(--r);cursor:pointer;white-space:nowrap">Save &amp; Reload</button>
-      <a href="https://script.google.com" target="_blank" style="font-size:10px;color:var(--ac)">Setup guide ↗</a>
-    </div>
-  </div>
+<!-- DATA STATUS BANNER -->
+<div class="dbanner loading" id="dbanner">
+  <div class="ddot" id="ddot" style="background:var(--t2)"></div>
+  <span id="dbtxt">Fetching live market data...</span>
+  <button id="gasToggleBtn" onclick="toggleGasInput()" style="display:none;margin-left:8px;background:none;border:1px solid var(--am);color:var(--am);font-family:var(--mo);font-size:10px;padding:2px 8px;border-radius:var(--r);cursor:pointer">+ Add Proxy for Live Data</button>
+  <button onclick="dismissBanner()" style="margin-left:auto;background:none;border:none;color:var(--tm);font-size:14px;cursor:pointer;padding:0 4px;line-height:1" title="Dismiss">✕</button>
+</div>
+<!-- GAS URL input — hidden by default, shown only when user clicks + Add Proxy -->
+<div id="gasRow" style="display:none;align-items:center;gap:8px;padding:6px 20px;background:var(--bg1);border-bottom:1px solid var(--b1);flex-wrap:wrap">
+  <span style="font-size:11px;color:var(--am);white-space:nowrap">Google Apps Script URL:</span>
+  <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec"
+    style="background:var(--bg0);border:1px solid var(--am);color:var(--t1);font-family:var(--mo);font-size:11px;padding:5px 10px;border-radius:var(--r);flex:1;min-width:220px;max-width:420px;outline:none"/>
+  <button onclick="saveGasUrl()" style="background:var(--am);color:var(--bg0);border:none;font-family:var(--mo);font-size:11px;font-weight:600;padding:5px 14px;border-radius:var(--r);cursor:pointer;white-space:nowrap">Save &amp; Reload</button>
+  <a href="https://script.google.com" target="_blank" style="font-size:10px;color:var(--ac);white-space:nowrap">Setup guide ↗</a>
+  <button onclick="document.getElementById('gasRow').style.display='none'" style="background:none;border:none;color:var(--tm);font-size:14px;cursor:pointer">✕</button>
 </div>
 
 <main id="app">
@@ -458,74 +459,57 @@ canvas.mc{width:100%;height:48px;display:block;margin-bottom:7px}
   </div>
 </section>
 
-<!-- SIGNALS (100% FREE — rule-based engine) -->
+<!-- SIGNALS — Options Buying Only, Realistic Exits -->
 <section class="section" id="tab-signals">
 
-  <!-- HERO / ZERO TRADE TABLE -->
-  <div class="panel hz-panel">
-    <div class="hz-header">
+  <!-- CONTROLS -->
+  <div class="panel" style="margin-bottom:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
       <div>
-        <div class="plbl" style="margin-bottom:3px">Hero / Zero — Live Trade Suggestions</div>
-        <div style="font-size:11px;color:var(--tm)">All 5 indices scanned · Entry · Target +15% · Stop Loss -5% · Updates on Refresh</div>
+        <div class="plbl" style="margin-bottom:2px">Options Buy Signal — All 5 Indices</div>
+        <div style="font-size:11px;color:var(--tm)">CE or PE buy only · No spreads · No selling · Exits based on key levels &amp; ATR</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <select id="hzRisk" class="sel" style="width:auto" onchange="scanAllIndices()">
-          <option value="safe">Safe — Spreads</option>
-          <option value="moderate">Moderate — ATM</option>
-          <option value="aggressive">Aggressive — OTM</option>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="hzRisk" class="sel" style="width:auto" onchange="">
+          <option value="safe">ATM Strike — Safer</option>
+          <option value="moderate">1-Strike OTM — Better R:R</option>
+          <option value="aggressive">2-Strike OTM — High R:R</option>
         </select>
-        <select id="hzExpiry" class="sel" style="width:auto">
-          <option value="near">Near Expiry</option>
-          <option value="next">Next Expiry</option>
-        </select>
-        <button class="btn-gen" id="scanBtn" onclick="scanAllIndices()">↻ Scan All Indices</button>
+        <button class="btn-gen" id="scanBtn" onclick="scanAllIndices()">⚡ Scan All 5 Indices</button>
       </div>
     </div>
+  </div>
 
-    <!-- Summary bar -->
-    <div class="hz-summary" id="hzSummary" style="display:none">
-      <div class="hz-sum-item bull" id="hzBullCount">0 Bullish</div>
-      <div class="hz-sum-item bear" id="hzBearCount">0 Bearish</div>
-      <div class="hz-sum-item neut" id="hzNeutCount">0 Neutral</div>
-      <div class="hz-sum-item" id="hzVixBadge" style="margin-left:auto"></div>
-    </div>
-
-    <!-- Trade Table -->
-    <div class="tw" style="margin-top:12px">
-      <table class="hz-tbl" id="hzTable">
+  <!-- SCAN RESULTS TABLE -->
+  <div class="panel" style="margin-bottom:10px">
+    <div class="tw">
+      <table class="ot" id="hzTable" style="font-size:12px">
         <thead>
-          <tr>
-            <th>Index</th>
-            <th>Spot</th>
-            <th>Direction</th>
-            <th>Hero / Zero Trade</th>
-            <th>Entry (Premium)</th>
-            <th>Target +15%</th>
-            <th>Stop Loss -5%</th>
-            <th>Max Loss / Lot</th>
-            <th>Confidence</th>
+          <tr style="background:var(--bg1)">
+            <th style="text-align:left;padding:10px 12px;font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em">Index</th>
+            <th style="text-align:right;padding:10px 8px;font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em">Spot</th>
+            <th style="text-align:center;padding:10px 8px;font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em">Signal</th>
+            <th style="text-align:center;padding:10px 8px;font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em">Strike</th>
+            <th style="text-align:right;padding:10px 8px;font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em">Entry Prem</th>
+            <th style="text-align:right;padding:10px 8px;font-size:10px;color:var(--rd);text-transform:uppercase;letter-spacing:.06em">SL (idx/prem)</th>
+            <th style="text-align:right;padding:10px 8px;font-size:10px;color:var(--gn);text-transform:uppercase;letter-spacing:.06em">T1 (50% exit)</th>
+            <th style="text-align:right;padding:10px 8px;font-size:10px;color:var(--gn);text-transform:uppercase;letter-spacing:.06em">T2 (25% exit)</th>
+            <th style="text-align:right;padding:10px 8px;font-size:10px;color:var(--gn);text-transform:uppercase;letter-spacing:.06em">T3 (trail)</th>
+            <th style="text-align:right;padding:10px 8px;font-size:10px;color:var(--rd);text-transform:uppercase;letter-spacing:.06em">Max Loss/Lot</th>
+            <th style="text-align:center;padding:10px 8px;font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em">Conf</th>
           </tr>
         </thead>
         <tbody id="hzBody">
-          <tr><td colspan="9" class="te" style="padding:30px">Click "Scan All Indices" to generate trade suggestions</td></tr>
+          <tr><td colspan="11" class="te" style="padding:40px">Click ⚡ Scan All 5 Indices above to generate live trade suggestions</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- DETAILED BREAKDOWN for selected row -->
-  <div class="panel" id="hzDetail" style="display:none">
-    <div class="plbl" id="hzDetailTitle">Trade Detail</div>
-    <div id="hzDetailBody"></div>
-  </div>
+  <!-- DETAILED CARD — shown when row clicked -->
+  <div id="hzDetail" style="display:none;margin-bottom:10px"></div>
 
-  <!-- Signal History -->
-  <div class="panel" style="margin-top:10px">
-    <div class="plbl">Scan History</div>
-    <div id="hzHistory"><p class="te m">No scans yet</p></div>
-  </div>
-
-  <div class="panel disc" style="margin-top:10px">⚠ <strong>Disclaimer:</strong> Signals are rule-based and for educational purposes only. Options trading carries substantial risk of loss. This is NOT financial advice. Always consult a SEBI-registered investment advisor before trading.</div>
+  <div class="panel disc">⚠ <strong>Disclaimer:</strong> Signals are rule-based and for educational purposes only. Options trading carries substantial risk of loss. This is NOT financial advice. Always consult a SEBI-registered investment advisor before trading.</div>
 </section>
 
 </main>
@@ -672,29 +656,44 @@ function isOpen(){const n=new Date(new Date().toLocaleString('en-US',{timeZone:'
 
 function setMode(m){
   if(m==='live'||m==='demo'){
-    const bn=G('dbanner'),dt=G('ddot'),bt=G('dbtxt');
+    const bn=G('dbanner'),dt=G('ddot'),bt=G('dbtxt'),gb=G('gasToggleBtn');
     if(!bn)return;
     if(m==='live'){
-      bn.className='dbanner live';dt.style.background='var(--gn)';
-      bt.textContent='✓ Live data — Yahoo Finance & NSE';
-      const gi=G('gasInline');if(gi)gi.style.display='none';
+      bn.className='dbanner live';
+      if(dt)dt.style.background='var(--gn)';
+      if(bt)bt.textContent='✓ Live data — Yahoo Finance & NSE APIs';
+      if(gb)gb.style.display='none';
+      G('gasRow').style.display='none';
+      // Auto-hide green banner after 5s — not needed once data is confirmed live
+      setTimeout(()=>{if(bn&&bn.className.includes('live'))bn.style.display='none';},5000);
     }else{
-      bn.className='dbanner demo';dt.style.background='var(--am)';
-      bt.textContent='⚠ Demo data — paste Google Apps Script URL below for live NSE data:';
-      const gi=G('gasInline');if(gi)gi.style.display='flex';
+      bn.className='dbanner demo';
+      if(dt)dt.style.background='var(--am)';
+      if(bt)bt.textContent='⚠ Demo data (CORS proxies unavailable)';
+      // Only show the button if no GAS URL saved yet
+      if(gb&&!localStorage.getItem('gas_url'))gb.style.display='inline-block';
     }
   }
   if(dataMode!=='live')dataMode=m;
 }
 
+function toggleGasInput(){
+  const row=G('gasRow');
+  row.style.display=row.style.display==='none'?'flex':'none';
+}
+
+function dismissBanner(){
+  const bn=G('dbanner');if(bn)bn.style.display='none';
+  const row=G('gasRow');if(row)row.style.display='none';
+}
+
 function saveGasUrl(){
   const u=G('gasUrl').value.trim();
   if(!u||!u.includes('script.google.com')){
-    alert('Invalid URL. It should look like: https://script.google.com/macros/s/ABC.../exec');return;
+    alert('Invalid URL. Should look like: https://script.google.com/macros/s/ABC.../exec');return;
   }
   localStorage.setItem('gas_url',u);
-  // Reload to use new proxy
-  setTimeout(()=>location.reload(),300);
+  setTimeout(()=>location.reload(),200);
 }
 
 
@@ -854,7 +853,7 @@ function rVIX(vix,candles){
   if(candles?.length){const C=candles.slice(-25).map(c=>c.close),mn=Math.min(...C),mx=Math.max(...C),rng=mx-mn||1;const pts=C.map((v,i)=>`${(i/(C.length-1)*100).toFixed(1)},${((mx-v)/rng*80+10).toFixed(1)}`).join(' ');sH('vixSpark',`<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:100%"><defs><linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(56,189,248,.3)"/><stop offset="100%" stop-color="rgba(56,189,248,0)"/></linearGradient></defs><polygon points="${pts} 100,100 0,100" fill="url(#vg)"/><polyline points="${pts}" fill="none" stroke="rgba(56,189,248,.8)" stroke-width=".7" stroke-linejoin="round"/></svg>`);}
   const v=vix?.price||15;let txt,col;
   if(v<12){txt=`VIX ${v.toFixed(1)} — Extreme complacency. Options cheap — great for buying straddles/strangles.`;col='g';}
-  else if(v<16){txt=`VIX ${v.toFixed(1)} — Low volatility. Iron Condor / Short Strangle strategies favored.`;col='g';}
+  else if(v<16){txt=`VIX ${v.toFixed(1)} — Low volatility. Options are cheap — good time to buy CE or PE.`;col='g';}
   else if(v<20){txt=`VIX ${v.toFixed(1)} — Moderate. Normal conditions. Follow technicals strictly.`;col='a';}
   else if(v<26){txt=`VIX ${v.toFixed(1)} — Elevated fear. Reduce size. Avoid naked short positions.`;col='a';}
   else{txt=`VIX ${v.toFixed(1)} — PANIC ZONE. Contrarian buy zone historically. Use straddles to capture big moves.`;col='r';}
@@ -915,266 +914,461 @@ async function doSignal(){
 }
 
 function computeSignal({name,spot,atm,pcr,mp,nearExp,vixVal,avgFII,atr,cfg,ind,atmCE_ltp,atmPE_ltp,risk}){
-  const{rsi,macd,bb,e20,e50,e200,price}=ind;
+  const{rsi,macd,bb,e20,e50,e200,price,C}=ind;
   const step=cfg.step,lot=cfg.lot;
 
-  // ── Score each indicator ──
-  let bullScore=0,bearScore=0,total=0;
+  // ── Score indicators ──
+  let bull=0,bear=0,total=0;
   const reasons=[],risks=[];
 
-  // RSI
   const rsiW=20;total+=rsiW;
   if(rsi!==null){
-    if(rsi>=70){bearScore+=rsiW;reasons.push(`RSI ${rsi.toFixed(1)} — Overbought, bearish`);}
-    else if(rsi<=30){bullScore+=rsiW;reasons.push(`RSI ${rsi.toFixed(1)} — Oversold, bullish`);}
-    else if(rsi>=55){bullScore+=rsiW*.6;reasons.push(`RSI ${rsi.toFixed(1)} — Bullish zone`);}
-    else if(rsi<=45){bearScore+=rsiW*.6;reasons.push(`RSI ${rsi.toFixed(1)} — Bearish zone`);}
-    else{bullScore+=rsiW*.3;bearScore+=rsiW*.3;reasons.push(`RSI ${rsi.toFixed(1)} — Neutral`);}
+    if(rsi>=70){bear+=rsiW;reasons.push(`RSI ${rsi.toFixed(1)} — Overbought`);}
+    else if(rsi<=30){bull+=rsiW;reasons.push(`RSI ${rsi.toFixed(1)} — Heavily oversold, strong bounce expected`);}
+    else if(rsi>=55){bull+=rsiW*.6;reasons.push(`RSI ${rsi.toFixed(1)} — Bullish momentum`);}
+    else if(rsi<=45){bear+=rsiW*.6;reasons.push(`RSI ${rsi.toFixed(1)} — Bearish momentum`);}
+    else{bull+=rsiW*.3;bear+=rsiW*.3;reasons.push(`RSI ${rsi.toFixed(1)} — Neutral`);}
   }
 
-  // MACD
   const macdW=20;total+=macdW;
   if(macd?.length){
     const l=macd[macd.length-1],p2=macd[macd.length-2];
-    const cross_up=p2&&p2.MACD<p2.signal&&l.MACD>l.signal;
-    const cross_dn=p2&&p2.MACD>p2.signal&&l.MACD<l.signal;
-    if(cross_up){bullScore+=macdW;reasons.push('MACD bullish crossover ↑');}
-    else if(cross_dn){bearScore+=macdW;reasons.push('MACD bearish crossover ↓');}
-    else if(l?.MACD>l?.signal&&(l?.histogram||0)>0){bullScore+=macdW*.65;reasons.push(`MACD above signal line (hist: +${(l.histogram||0).toFixed(1)})`);}
-    else if(l?.MACD<l?.signal&&(l?.histogram||0)<0){bearScore+=macdW*.65;reasons.push(`MACD below signal line (hist: ${(l.histogram||0).toFixed(1)})`);}
-    else{bullScore+=macdW*.3;bearScore+=macdW*.3;reasons.push('MACD consolidating');}
+    const cup=p2&&p2.MACD<p2.signal&&l.MACD>l.signal;
+    const cdn=p2&&p2.MACD>p2.signal&&l.MACD<l.signal;
+    if(cup){bull+=macdW;reasons.push('MACD bullish crossover — fresh buy signal');}
+    else if(cdn){bear+=macdW;reasons.push('MACD bearish crossover — fresh sell signal');}
+    else if(l?.histogram>0){bull+=macdW*.65;reasons.push(`MACD histogram positive (+${l.histogram.toFixed(1)}) — upward momentum`);}
+    else if(l?.histogram<0){bear+=macdW*.65;reasons.push(`MACD histogram negative (${l.histogram.toFixed(1)}) — downward pressure`);}
+    else{bull+=macdW*.3;bear+=macdW*.3;}
   }
 
-  // Bollinger Bands
   const bbW=15;total+=bbW;
+  let bbPct=0.5;
   if(bb){
-    const pct=(price-bb.lower)/(bb.upper-bb.lower);
-    if(pct>0.95){bearScore+=bbW;reasons.push('Price at Upper Bollinger Band — reversal risk');}
-    else if(pct<0.05){bullScore+=bbW;reasons.push('Price at Lower Bollinger Band — bounce expected');}
-    else if(pct>0.65){bullScore+=bbW*.5;reasons.push(`BB ${(pct*100).toFixed(0)}% — upper half bullish`);}
-    else if(pct<0.35){bearScore+=bbW*.5;reasons.push(`BB ${(pct*100).toFixed(0)}% — lower half bearish`);}
+    bbPct=(price-bb.lower)/(bb.upper-bb.lower);
+    if(bbPct>0.95){bear+=bbW;reasons.push('Price at Upper BB — exhaustion/reversal zone');}
+    else if(bbPct<0.05){bull+=bbW;reasons.push('Price at Lower BB — oversold bounce zone');}
+    else if(bbPct>0.65){bull+=bbW*.5;reasons.push(`Price in upper BB (${(bbPct*100).toFixed(0)}%) — bullish`);}
+    else if(bbPct<0.35){bear+=bbW*.5;reasons.push(`Price in lower BB (${(bbPct*100).toFixed(0)}%) — bearish`);}
   }
 
-  // EMA trend
   const emaW=15;total+=emaW;
-  let emaB=0,emaR=0;
-  if(e20){price>e20?emaB++:emaR++;}
-  if(e50){price>e50?emaB++:emaR++;}
-  if(e200){price>e200?emaB++:emaR++;}
-  if(e20&&e50){e20>e50?emaB++:emaR++;}
-  if(emaB>emaR){bullScore+=emaW*(emaB/(emaB+emaR));reasons.push(`EMA trend: ${emaB}/${emaB+emaR} bullish`);}
-  else if(emaR>emaB){bearScore+=emaW*(emaR/(emaB+emaR));reasons.push(`EMA trend: ${emaR}/${emaB+emaR} bearish`);}
+  let eb=0,er=0;
+  if(e20){price>e20?eb++:er++;} if(e50){price>e50?eb++:er++;} if(e200){price>e200?eb++:er++;}
+  if(e20&&e50){e20>e50?eb++:er++;}
+  if(eb>er){bull+=emaW*(eb/(eb+er));reasons.push(`EMA structure bullish — price above ${eb>2?'all':'most'} EMAs`);}
+  else if(er>eb){bear+=emaW*(er/(eb+er));reasons.push(`EMA structure bearish — price below ${er>2?'all':'most'} EMAs`);}
 
-  // PCR
   const pcrW=15;total+=pcrW;
-  if(pcr>1.3){bullScore+=pcrW;reasons.push(`PCR ${pcr.toFixed(2)} — Heavily bullish (extreme PE writing)`);}
-  else if(pcr>1.1){bullScore+=pcrW*.6;reasons.push(`PCR ${pcr.toFixed(2)} — Bullish bias`);}
-  else if(pcr<0.8){bearScore+=pcrW;reasons.push(`PCR ${pcr.toFixed(2)} — Bearish (heavy CE writing)`);}
-  else if(pcr<0.9){bearScore+=pcrW*.6;reasons.push(`PCR ${pcr.toFixed(2)} — Slight bearish bias`);}
-  else{reasons.push(`PCR ${pcr.toFixed(2)} — Neutral`);}
+  if(pcr>1.3){bull+=pcrW;reasons.push(`PCR ${pcr.toFixed(2)} — Heavy PE writing, market expects rise`);}
+  else if(pcr>1.1){bull+=pcrW*.6;reasons.push(`PCR ${pcr.toFixed(2)} — Slight bullish bias in options`);}
+  else if(pcr<0.8){bear+=pcrW;reasons.push(`PCR ${pcr.toFixed(2)} — Heavy CE writing, market expects fall`);}
+  else if(pcr<0.9){bear+=pcrW*.6;reasons.push(`PCR ${pcr.toFixed(2)} — Slight bearish bias in options`);}
+  else{reasons.push(`PCR ${pcr.toFixed(2)} — Balanced, no clear bias`);}
 
-  // VIX
-  const vixW=10;total+=vixW;
-  if(vixVal>22){risks.push(`VIX at ${vixVal.toFixed(1)} — High volatility, use spreads not naked positions`);bearScore+=vixW*.3;}
-  else if(vixVal<14){reasons.push(`VIX ${vixVal.toFixed(1)} — Low, options cheap`);}
-  else{reasons.push(`VIX ${vixVal.toFixed(1)} — Moderate`);}
+  const vixW=5;total+=vixW;
+  if(avgFII>1500){bull+=5;reasons.push(`FII net buying ₹${(avgFII/100).toFixed(0)}Cr — institutional support`);}
+  else if(avgFII<-1500){bear+=5;reasons.push(`FII net selling ₹${(avgFII/100).toFixed(0)}Cr — institutional exit`);}
 
-  // FII
-  const fiiW=5;total+=fiiW;
-  if(avgFII>1500){bullScore+=fiiW;reasons.push(`FII buying ₹${(avgFII/100).toFixed(0)}Cr avg`);}
-  else if(avgFII<-1500){bearScore+=fiiW;reasons.push(`FII selling ₹${(avgFII/100).toFixed(0)}Cr avg`);}
-
-  // Max Pain
-  const mpDiff=spot-mp;
-  if(Math.abs(mpDiff)<step*2)reasons.push(`Spot near Max Pain ₹${mp} — expiry magnet`);
-  else if(mpDiff>0)risks.push(`Spot ₹${mpDiff.toFixed(0)} above Max Pain ${mp} — gravitational pull downward`);
-  else risks.push(`Spot ₹${Math.abs(mpDiff).toFixed(0)} below Max Pain ${mp} — gravitational pull upward`);
-
-  // ── Determine direction & confidence ──
-  const bullPct=total>0?bullScore/total*100:50;
-  const bearPct=total>0?bearScore/total*100:50;
+  const bullPct=total>0?bull/total*100:50;
+  const bearPct=total>0?bear/total*100:50;
   const diff=bullPct-bearPct;
 
-  let direction,confidence,strategy;
-  if(diff>20){direction='BULLISH';confidence=diff>35?9:diff>25?8:7;}
-  else if(diff<-20){direction='BEARISH';confidence=diff<-35?9:diff<-25?8:7;}
-  else{direction='NEUTRAL';confidence=5;}
+  // ── Direction — only trade strong signals ──
+  let direction;
+  if(diff>18)direction='BULLISH';
+  else if(diff<-18)direction='BEARISH';
+  else direction='NEUTRAL';
 
-  // Reduce confidence if VIX is high or market is closed
-  if(vixVal>22)confidence=Math.max(5,confidence-1);
-  if(vixVal>28)confidence=Math.max(4,confidence-2);
-
-  // ── Compute exact levels ──
-  const slMult=risk==='safe'?0.5:risk==='moderate'?1.0:1.8;
-  const tgtMult=risk==='safe'?1.0:risk==='moderate'?1.8:3.0;
-
-  let index_entry,index_sl,index_target1,index_target2,legs=[];
-
-  if(direction==='BULLISH'){
-    strategy=risk==='safe'?'Bull Call Spread':risk==='moderate'?'Long CE (ATM)':'Long CE (Slightly OTM)';
-    index_entry=Math.round(spot/step)*step; // entry near current spot
-    index_sl=Math.round((spot-atr*slMult)/step)*step;
-    index_target1=Math.round((spot+atr*tgtMult)/step)*step;
-    index_target2=Math.round((spot+atr*tgtMult*1.8)/step)*step;
-    if(risk==='safe'){
-      // Bull Call Spread: BUY ATM CE + SELL OTM CE
-      const buyStrike=atm, sellStrike=atm+step*2;
-      const buyLTP=atmCE_ltp||Math.max(1,atr*.4);
-      const sellLTP=Math.max(.5,buyLTP*.4);
-      const netPrem=buyLTP-sellLTP;
-      legs=[
-        {action:'BUY',type:'CE',strike:buyStrike,expiry:nearExp,ltp:buyLTP.toFixed(1),target_premium:(buyLTP*2.2).toFixed(1),sl_premium:(buyLTP*.35).toFixed(1)},
-        {action:'SELL',type:'CE',strike:sellStrike,expiry:nearExp,ltp:sellLTP.toFixed(1),target_premium:'0',sl_premium:(sellLTP*3).toFixed(1)},
-      ];
-      strategy=`Bull Call Spread (Buy ${buyStrike}CE / Sell ${sellStrike}CE)`;
-    }else{
-      const strike=risk==='moderate'?atm:atm+step;
-      const ltp=risk==='moderate'?atmCE_ltp||atr*.4:(atmCE_ltp||atr*.4)*.6;
-      legs=[{action:'BUY',type:'CE',strike,expiry:nearExp,ltp:Math.max(.5,ltp).toFixed(1),target_premium:(Math.max(.5,ltp)*2.5).toFixed(1),sl_premium:(Math.max(.5,ltp)*.4).toFixed(1)}];
-      strategy=`Long CE — Buy ${strike} CE (${nearExp})`;
-    }
-  }else if(direction==='BEARISH'){
-    strategy=risk==='safe'?'Bear Put Spread':risk==='moderate'?'Long PE (ATM)':'Long PE (Slightly OTM)';
-    index_entry=Math.round(spot/step)*step;
-    index_sl=Math.round((spot+atr*slMult)/step)*step;
-    index_target1=Math.round((spot-atr*tgtMult)/step)*step;
-    index_target2=Math.round((spot-atr*tgtMult*1.8)/step)*step;
-    if(risk==='safe'){
-      const buyStrike=atm,sellStrike=atm-step*2;
-      const buyLTP=atmPE_ltp||Math.max(1,atr*.4);
-      const sellLTP=Math.max(.5,buyLTP*.4);
-      legs=[
-        {action:'BUY',type:'PE',strike:buyStrike,expiry:nearExp,ltp:buyLTP.toFixed(1),target_premium:(buyLTP*2.2).toFixed(1),sl_premium:(buyLTP*.35).toFixed(1)},
-        {action:'SELL',type:'PE',strike:sellStrike,expiry:nearExp,ltp:sellLTP.toFixed(1),target_premium:'0',sl_premium:(sellLTP*3).toFixed(1)},
-      ];
-      strategy=`Bear Put Spread (Buy ${buyStrike}PE / Sell ${sellStrike}PE)`;
-    }else{
-      const strike=risk==='moderate'?atm:atm-step;
-      const ltp=risk==='moderate'?atmPE_ltp||atr*.4:(atmPE_ltp||atr*.4)*.6;
-      legs=[{action:'BUY',type:'PE',strike,expiry:nearExp,ltp:Math.max(.5,ltp).toFixed(1),target_premium:(Math.max(.5,ltp)*2.5).toFixed(1),sl_premium:(Math.max(.5,ltp)*.4).toFixed(1)}];
-      strategy=`Long PE — Buy ${strike} PE (${nearExp})`;
-    }
-  }else{
-    strategy='Iron Condor (Range-Bound)';
-    index_entry=Math.round(spot/step)*step;
-    index_sl=spot;index_target1=spot;index_target2=spot;
-    // Iron Condor: sell ATM straddle / buy wings
-    legs=[
-      {action:'SELL',type:'CE',strike:atm+step,expiry:nearExp,ltp:(atmCE_ltp*.7||2).toFixed(1),target_premium:'0',sl_premium:(atmCE_ltp*1.5||6).toFixed(1)},
-      {action:'SELL',type:'PE',strike:atm-step,expiry:nearExp,ltp:(atmPE_ltp*.7||2).toFixed(1),target_premium:'0',sl_premium:(atmPE_ltp*1.5||6).toFixed(1)},
-      {action:'BUY', type:'CE',strike:atm+step*3,expiry:nearExp,ltp:(atmCE_ltp*.2||.5).toFixed(1),target_premium:'0',sl_premium:'0'},
-      {action:'BUY', type:'PE',strike:atm-step*3,expiry:nearExp,ltp:(atmPE_ltp*.2||.5).toFixed(1),target_premium:'0',sl_premium:'0'},
-    ];
+  // ── If neutral, force a direction based on dominant bias ──
+  // (We only buy CE or PE — no sitting out)
+  if(direction==='NEUTRAL'){
+    direction=bullPct>=bearPct?'BULLISH':'BEARISH';
   }
 
-  // ── Risk-reward ──
-  const entryToT1=Math.abs(index_target1-index_entry);
-  const entryToSL=Math.abs(index_entry-index_sl)||1;
-  const rr=(entryToT1/entryToSL).toFixed(1);
+  let confidence;
+  const absDiff=Math.abs(diff);
+  if(absDiff>40)confidence=9;
+  else if(absDiff>30)confidence=8;
+  else if(absDiff>20)confidence=7;
+  else if(absDiff>12)confidence=6;
+  else confidence=5;
+  if(vixVal>24)confidence=Math.max(5,confidence-1);
 
-  // ── Max loss / profit per lot ──
-  const maxLossPerLot=direction==='NEUTRAL'
-    ?(step*2 - (+(legs[0]?.ltp||0) + +(legs[1]?.ltp||0)) + (+(legs[2]?.ltp||0) + +(legs[3]?.ltp||0)))*lot
-    :risk==='safe'?(step*2 - Math.abs(+(legs[0]?.ltp||0)-(+(legs[1]?.ltp||0))))*lot
-    :(+(legs[0]?.ltp||0))*lot;
-  const maxProfitPerLot=direction==='NEUTRAL'
-    ?((+(legs[0]?.ltp||0))+(+(legs[1]?.ltp||0))-(+(legs[2]?.ltp||0))-(+(legs[3]?.ltp||0)))*lot
-    :risk==='safe'?(step*2)*lot:(+(legs[0]?.target_premium||0))*lot;
+  // ── KEY LEVELS from EMA + recent swing highs/lows ──
+  // Use last 20 candles to find swing levels
+  const recentC=C||[];
+  const last20=recentC.slice(-20);
+  const swingH=last20.length>0?Math.max(...last20):spot+atr*2;
+  const swingL=last20.length>0?Math.min(...last20):spot-atr*2;
+  const last5=recentC.slice(-5);
+  const recentH=last5.length>0?Math.max(...last5):spot+atr;
+  const recentL=last5.length>0?Math.min(...last5):spot-atr;
 
-  // ── Key levels ──
-  const e20val=e20||spot*0.99;const e50val=e50||spot*0.97;
-  const sup1=Math.round(Math.min(e20val,mp)/step)*step;
-  const sup2=Math.round(e50val/step)*step;
-  const res1=Math.round((atm+step*2)/step)*step;
-  const res2=Math.round((atm+step*4)/step)*step;
-  const inval=direction==='BULLISH'?index_sl-step:direction==='BEARISH'?index_sl+step:spot+atr*2;
+  // Key resistance levels (for CE exit targets)
+  const ema20val=e20||spot;
+  const ema50val=e50||spot*0.98;
+  const roundedSpot=Math.round(spot/step)*step;
 
-  // ── Time horizon ──
-  const horizon=vixVal>20?'Intraday':risk==='safe'?'1-2 Days':'Weekly';
+  // ── COMPUTE LEVELS based on ATR and key price structure ──
+  // ATR gives the daily expected move. For options, we need index targets
+  // that translate to realistic premium moves.
 
-  // ── Analysis text ──
+  let index_entry, index_sl, tgt1, tgt2, tgt3;
+
+  if(direction==='BULLISH'){
+    // Entry: at or just below current spot (wait for a slight dip or buy now)
+    index_entry=roundedSpot;
+
+    // Stop Loss: below recent swing low OR below EMA20 — whichever is closer
+    const slFromSwing=Math.floor(recentL/step)*step-step;
+    const slFromEMA=e20?Math.floor((e20-atr*0.3)/step)*step:null;
+    const slFromATR=Math.floor((spot-atr*0.7)/step)*step;
+    index_sl=Math.max(slFromSwing,slFromEMA||slFromATR,slFromATR); // tightest valid SL
+
+    // Target 1: recent swing high or nearest resistance
+    tgt1=Math.ceil(Math.max(recentH,spot+atr*0.8)/step)*step;
+
+    // Target 2: 20-day swing high or 1.5x ATR
+    tgt2=Math.ceil(Math.max(swingH,spot+atr*1.4)/step)*step;
+
+    // Target 3: extended target — next round number or 2x ATR
+    const nextRound=Math.ceil((spot+atr*2)/1000)*1000; // nearest 1000-level above
+    tgt3=Math.max(nextRound, Math.ceil((spot+atr*2.2)/step)*step);
+
+  }else{
+    index_entry=roundedSpot;
+
+    // SL above recent swing high
+    const slFromSwing=Math.ceil(recentH/step)*step+step;
+    const slFromEMA=e20?Math.ceil((e20+atr*0.3)/step)*step:null;
+    const slFromATR=Math.ceil((spot+atr*0.7)/step)*step;
+    index_sl=Math.min(slFromSwing,slFromEMA||slFromATR,slFromATR);
+
+    tgt1=Math.floor(Math.min(recentL,spot-atr*0.8)/step)*step;
+    tgt2=Math.floor(Math.min(swingL,spot-atr*1.4)/step)*step;
+    const prevRound=Math.floor((spot-atr*2)/1000)*1000;
+    tgt3=Math.min(prevRound, Math.floor((spot-atr*2.2)/step)*step);
+  }
+
+  // ── OPTION SELECTION — always BUY only, never SELL ──
+  // Strike selection: ATM for moderate, 1-strike OTM for aggressive
+  // Premium targets derived from index move × delta approximation
+
+  const atmCE=atmCE_ltp||Math.max(5, atr*0.35);
+  const atmPE=atmPE_ltp||Math.max(5, atr*0.35);
+
+  // Delta approximation: ATM ~0.50, 1-OTM ~0.35
+  // Premium move ≈ index move × delta
+  const delta_atm=0.50, delta_otm=0.35;
+
+  let strike, optType, entryPrem, exitPrem1, exitPrem2, exitPrem3, slPrem, strategy;
+
+  if(direction==='BULLISH'){
+    optType='CE';
+    if(risk==='safe'){
+      // ATM CE — safer, higher delta
+      strike=atm;
+      entryPrem=atmCE;
+      const move1=Math.abs(tgt1-spot)*delta_atm;
+      const move2=Math.abs(tgt2-spot)*delta_atm;
+      const move3=Math.abs(tgt3-spot)*delta_atm;
+      exitPrem1=Math.round((entryPrem+move1)*10)/10;
+      exitPrem2=Math.round((entryPrem+move2)*10)/10;
+      exitPrem3=Math.round((entryPrem+move3)*10)/10;
+      slPrem=Math.round((entryPrem-Math.abs(index_sl-spot)*delta_atm)*10)/10;
+      strategy=`Buy ${atm} CE`;
+    }else if(risk==='moderate'){
+      // 1 strike OTM — better reward
+      strike=atm+step;
+      entryPrem=Math.max(2, atmCE*0.55);
+      const move1=Math.abs(tgt1-spot)*delta_otm;
+      const move2=Math.abs(tgt2-spot)*delta_otm;
+      const move3=Math.abs(tgt3-spot)*delta_otm;
+      exitPrem1=Math.round((entryPrem+move1)*10)/10;
+      exitPrem2=Math.round((entryPrem+move2)*10)/10;
+      exitPrem3=Math.round((entryPrem+move3)*10)/10;
+      slPrem=Math.round((entryPrem-Math.abs(index_sl-spot)*delta_otm)*10)/10;
+      strategy=`Buy ${atm+step} CE`;
+    }else{
+      // Aggressive: 2 strikes OTM — high risk/reward
+      strike=atm+step*2;
+      entryPrem=Math.max(1, atmCE*0.30);
+      const delta_deep=0.25;
+      const move1=Math.abs(tgt1-spot)*delta_deep;
+      const move2=Math.abs(tgt2-spot)*delta_deep;
+      const move3=Math.abs(tgt3-spot)*delta_deep;
+      exitPrem1=Math.round((entryPrem+move1)*10)/10;
+      exitPrem2=Math.round((entryPrem+move2)*10)/10;
+      exitPrem3=Math.round((entryPrem+move3)*10)/10;
+      slPrem=Math.max(0.5, Math.round((entryPrem*0.4)*10)/10);
+      strategy=`Buy ${atm+step*2} CE`;
+    }
+  }else{
+    optType='PE';
+    if(risk==='safe'){
+      strike=atm;
+      entryPrem=atmPE;
+      const move1=Math.abs(tgt1-spot)*delta_atm;
+      const move2=Math.abs(tgt2-spot)*delta_atm;
+      const move3=Math.abs(tgt3-spot)*delta_atm;
+      exitPrem1=Math.round((entryPrem+move1)*10)/10;
+      exitPrem2=Math.round((entryPrem+move2)*10)/10;
+      exitPrem3=Math.round((entryPrem+move3)*10)/10;
+      slPrem=Math.round((entryPrem-Math.abs(index_sl-spot)*delta_atm)*10)/10;
+      strategy=`Buy ${atm} PE`;
+    }else if(risk==='moderate'){
+      strike=atm-step;
+      entryPrem=Math.max(2, atmPE*0.55);
+      const move1=Math.abs(tgt1-spot)*delta_otm;
+      const move2=Math.abs(tgt2-spot)*delta_otm;
+      const move3=Math.abs(tgt3-spot)*delta_otm;
+      exitPrem1=Math.round((entryPrem+move1)*10)/10;
+      exitPrem2=Math.round((entryPrem+move2)*10)/10;
+      exitPrem3=Math.round((entryPrem+move3)*10)/10;
+      slPrem=Math.round((entryPrem-Math.abs(index_sl-spot)*delta_otm)*10)/10;
+      strategy=`Buy ${atm-step} PE`;
+    }else{
+      strike=atm-step*2;
+      entryPrem=Math.max(1, atmPE*0.30);
+      const delta_deep=0.25;
+      const move1=Math.abs(tgt1-spot)*delta_deep;
+      const move2=Math.abs(tgt2-spot)*delta_deep;
+      const move3=Math.abs(tgt3-spot)*delta_deep;
+      exitPrem1=Math.round((entryPrem+move1)*10)/10;
+      exitPrem2=Math.round((entryPrem+move2)*10)/10;
+      exitPrem3=Math.round((entryPrem+move3)*10)/10;
+      slPrem=Math.max(0.5, Math.round((entryPrem*0.4)*10)/10);
+      strategy=`Buy ${atm-step*2} PE`;
+    }
+  }
+
+  // Ensure SL premium never goes negative
+  slPrem=Math.max(0.5, slPrem);
+
+  // ── Compute legs ──
+  const legs=[{
+    action:'BUY',type:optType,strike,expiry:nearExp,
+    ltp:entryPrem.toFixed(1),
+    tgt1:exitPrem1.toFixed(1),tgt2:exitPrem2.toFixed(1),tgt3:exitPrem3.toFixed(1),
+    sl_premium:slPrem.toFixed(1)
+  }];
+
+  // ── P&L per lot ──
+  const maxLoss=Math.round(entryPrem*lot);
+  const profitT1=Math.round((exitPrem1-entryPrem)*lot);
+  const profitT2=Math.round((exitPrem2-entryPrem)*lot);
+  const profitT3=Math.round((exitPrem3-entryPrem)*lot);
+
+  // ── Risk:Reward ──
+  const riskAmt=entryPrem-slPrem;
+  const rewardT1=exitPrem1-entryPrem;
+  const rr=riskAmt>0?(rewardT1/riskAmt).toFixed(1):'--';
+
+  // ── Max Pain distance ──
+  const mpDiff=spot-mp;
+  if(Math.abs(mpDiff)<step*2)risks.push(`Max Pain at ₹${mp} is near spot — watch for expiry-week pinning`);
+  else if(direction==='BULLISH'&&mpDiff<0)risks.push(`Max Pain ₹${mp} is below spot — gravity may pull price down toward it`);
+  else if(direction==='BEARISH'&&mpDiff>0)risks.push(`Max Pain ₹${mp} is above spot — option sellers may defend it`);
+
+  if(vixVal>20)risks.push(`VIX at ${vixVal.toFixed(1)} — elevated volatility, options decay faster, exit quickly on target`);
+
+  // ── Why this exit? reasoning ──
+  const exitRationale=direction==='BULLISH'
+    ?`T1 ₹${tgt1} = recent swing high / 0.8x ATR. T2 ₹${tgt2} = 20-day high / 1.4x ATR. T3 ₹${tgt3} = extended move / next key level.`
+    :`T1 ₹${tgt1} = recent swing low / 0.8x ATR. T2 ₹${tgt2} = 20-day low / 1.4x ATR. T3 ₹${tgt3} = extended move / next key level.`;
+
+  const analysis=`${reasons.slice(0,3).join('. ')}. ${direction==='BULLISH'?'Buying':'Buying'} ${optType} with index SL at ₹${index_sl} (${Math.abs(spot-index_sl).toFixed(0)} pts away). Premium SL at ₹${slPrem} protects capital. ${exitRationale}`;
+
   const indScores=[
-    {label:'RSI',bull:rsi!==null&&rsi<50,score:rsi!==null?Math.round(rsi):50},
+    {label:'RSI',bull:rsi!==null&&rsi>50,score:rsi!==null?Math.round(rsi):50},
     {label:'MACD',bull:macd?.length&&macd[macd.length-1]?.histogram>0,score:50},
-    {label:'EMA',bull:emaB>emaR,score:Math.round(emaB/(Math.max(1,emaB+emaR))*100)},
+    {label:'EMA',bull:eb>er,score:Math.round(eb/(Math.max(1,eb+er))*100)},
     {label:'PCR',bull:pcr>1,score:Math.round(Math.min(100,pcr*50))},
-    {label:'VIX',bull:vixVal<18,score:Math.round(100-Math.min(100,vixVal*3))},
+    {label:'VIX',bull:vixVal<18,score:Math.round(100-Math.min(100,vixVal*3.5))},
   ];
 
-  const analysis=`${direction==='BULLISH'?'Bullish':'Bearish'} confluence detected across ${direction==='NEUTRAL'?'mixed':Math.round(diff)}% of indicators. ${reasons.slice(0,3).join('. ')}. VIX at ${vixVal.toFixed(1)} suggests ${vixVal<16?'low volatility — options are relatively cheap':'moderate-to-high volatility — use defined-risk strategies'}. FII flow ${avgFII>0?'positive':'negative'} at ₹${(avgFII/100).toFixed(0)}Cr. Max Pain at ₹${mp} ${Math.abs(spot-mp)<step*3?'is near spot — expiry may pin here':'suggests ${spot>mp?"downward":"upward"} drift toward ₹'+mp}. ${index_sl?`Strict stop at index level ₹${index_sl} — exit immediately if breached.`:''}`;
-
-  const riskText=risks.slice(0,3).join('. ') || `Index reverses past ₹${inval.toFixed(0)}. Gap-up/down opening invalidates the setup. ${vixVal>20?'High VIX means wider swings — be prepared for quick moves.':''}`;
-
-  return{direction,confidence,strategy,index_entry,index_target1,index_target2,index_sl,rr:`1:${rr}`,horizon,legs,maxLossPerLot:Math.round(Math.abs(maxLossPerLot)),maxProfitPerLot:Math.round(Math.abs(maxProfitPerLot)),sup1,sup2,res1,res2,inval:Math.round(inval),analysis,riskText,indScores,bullPct:Math.round(bullPct),bearPct:Math.round(bearPct)};
+  return{
+    direction,confidence,strategy,optType,strike,
+    index_entry,index_sl,tgt1,tgt2,tgt3,
+    entryPrem:entryPrem.toFixed(1),
+    exitPrem1:exitPrem1.toFixed(1),exitPrem2:exitPrem2.toFixed(1),exitPrem3:exitPrem3.toFixed(1),
+    slPrem:slPrem.toFixed(1),
+    maxLoss,profitT1,profitT2,profitT3,
+    rr:`1:${rr}`,
+    legs,nearExp,lot,step,
+    sup1:direction==='BULLISH'?Math.floor((e20||spot-atr)/step)*step:tgt1,
+    sup2:direction==='BULLISH'?Math.floor((e50||spot-atr*2)/step)*step:tgt2,
+    res1:direction==='BULLISH'?tgt1:Math.ceil((e20||spot+atr)/step)*step,
+    res2:direction==='BULLISH'?tgt2:Math.ceil((e50||spot+atr*2)/step)*step,
+    inval:direction==='BULLISH'?index_sl-step:index_sl+step,
+    analysis,exitRationale,
+    risks:risks.join('. ')||'No major risk flags — standard trade management applies.',
+    indScores,bullPct:Math.round(bullPct),bearPct:Math.round(bearPct),
+    horizon:vixVal>22?'Intraday':risk==='safe'?'1-2 Days':'Weekly',
+    reasons
+  };
 }
 
 function renderSig(el,sig,ctx){
-  const{name,spot,risk,cfg,pcr,vixVal,nearExp}=ctx;
-  const dc=sig.direction==='BULLISH'?'var(--gn)':sig.direction==='BEARISH'?'var(--rd)':'var(--am)';
-  const di=sig.direction==='BULLISH'?'↑ ':sig.direction==='BEARISH'?'↓ ':'→ ';
+  const{name,spot,risk,cfg,pcr,vixVal}=ctx;
+  const isBull=sig.direction==='BULLISH';
+  const dc=isBull?'var(--gn)':'var(--rd)';
+  const di=isBull?'↑':'↓';
   const cc=sig.confidence>=8?'var(--gn)':sig.confidence>=6?'var(--am)':'var(--rd)';
-  const tc=sig.direction==='BULLISH'?'bull':sig.direction==='BEARISH'?'bear':'neut';
+  const tc=isBull?'bull':'bear';
+  const optClr=isBull?'rgba(16,185,129,.08)':'rgba(244,63,94,.08)';
+  const optBdr=isBull?'rgba(16,185,129,.3)':'rgba(244,63,94,.3)';
 
-  const legsHtml=(sig.legs||[]).map(l=>{
-    const lc=l.action==='BUY'?'var(--gn)':'var(--rd)';
-    return`<div class="leg-row"><span class="leg-act" style="color:${lc}">${l.action}</span><span>${l.type}</span><span class="leg-strike">₹${(l.strike||0).toLocaleString('en-IN')}</span><span class="leg-exp">${l.expiry||nearExp}</span><span>LTP≈₹${l.ltp}</span><span class="leg-tgt">Tgt ₹${l.target_premium}</span><span class="leg-sl">SL ₹${l.sl_premium}</span></div>`;
-  }).join('');
-
-  // Indicator score bars
-  const scoreBars=(sig.indScores||[]).map(s=>`<div class="score-row"><span class="score-label">${s.label}</span><div class="score-bar-wrap"><div class="score-bar" style="width:${s.score}%;background:${s.bull?'var(--gn)':'var(--rd)'}"></div></div><span class="score-val" style="color:${s.bull?'var(--gn)':'var(--rd)'}">${s.score}</span></div>`).join('');
-
-  el.innerHTML=`<div class="so">
-    <div class="so-dr">
-      <div class="so-dir" style="color:${dc}">${di}${sig.direction} — ${sig.strategy}</div>
-      <div class="so-conf"><div class="so-conf-l">Confidence</div><div class="so-conf-n" style="color:${cc}">${sig.confidence}/10</div></div>
-    </div>
-
-    <div style="display:flex;gap:8px;margin-bottom:10px;font-size:11px">
-      <div style="flex:1;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:var(--r);padding:8px;text-align:center">
-        <div style="color:var(--tm);font-size:10px;margin-bottom:3px">Bull Score</div>
-        <div style="font-size:18px;font-weight:700;color:var(--gn)">${sig.bullPct}%</div>
+  // Score bars
+  const scoreBars=(sig.indScores||[]).map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <span style="font-size:10px;color:var(--t2);width:36px;flex-shrink:0">${s.label}</span>
+      <div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden">
+        <div style="width:${s.score}%;height:100%;background:${s.bull?'var(--gn)':'var(--rd)'};border-radius:3px"></div>
       </div>
-      <div style="flex:1;background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.2);border-radius:var(--r);padding:8px;text-align:center">
-        <div style="color:var(--tm);font-size:10px;margin-bottom:3px">Bear Score</div>
-        <div style="font-size:18px;font-weight:700;color:var(--rd)">${sig.bearPct}%</div>
+      <span style="font-size:10px;font-weight:600;color:${s.bull?'var(--gn)':'var(--rd)'};width:24px;text-align:right">${s.score}</span>
+    </div>`).join('');
+
+  el.innerHTML=`<div class="so" style="padding:4px">
+
+    <!-- HEADER -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">${name} · ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'})} IST · ${dataMode==='live'?'<span style="color:var(--gn)">● Live</span>':'<span style="color:var(--am)">● Demo</span>'}</div>
+        <div style="font-family:var(--dp);font-size:22px;font-weight:700;color:${dc}">${di} ${sig.strategy}</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:3px">Expiry: <strong style="color:var(--t1)">${sig.nearExp}</strong> &nbsp;·&nbsp; Lot: <strong style="color:var(--t1)">${sig.lot} units</strong></div>
       </div>
-      <div style="flex:2;background:rgba(255,255,255,.03);border:1px solid var(--b1);border-radius:var(--r);padding:8px">${scoreBars}</div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:10px;color:var(--tm)">Confidence</div>
+        <div style="font-size:28px;font-weight:700;color:${cc};line-height:1">${sig.confidence}<span style="font-size:14px;color:var(--tm)">/10</span></div>
+        <div style="font-size:10px;color:var(--tm);margin-top:2px">${sig.rr} R:R</div>
+      </div>
     </div>
 
-    <div class="so-m">
-      <div class="sm"><div class="sm-l">Index Entry</div><div class="sm-v c">₹${(sig.index_entry||spot).toFixed(0)}</div></div>
-      <div class="sm"><div class="sm-l">Target 1</div><div class="sm-v g">₹${(sig.index_target1||0).toFixed(0)}</div></div>
-      <div class="sm"><div class="sm-l">Target 2</div><div class="sm-v g">₹${(sig.index_target2||0).toFixed(0)}</div></div>
-      <div class="sm"><div class="sm-l">Stop Loss</div><div class="sm-v r">₹${(sig.index_sl||0).toFixed(0)}</div></div>
-      <div class="sm"><div class="sm-l">Risk : Reward</div><div class="sm-v">${sig.rr||'--'}</div></div>
-      <div class="sm"><div class="sm-l">Horizon</div><div class="sm-v">${sig.horizon||'--'}</div></div>
+    <!-- MAIN TRADE BOX -->
+    <div style="background:${optClr};border:1.5px solid ${optBdr};border-radius:var(--rl);padding:14px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:600;color:${dc};text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">
+        📋 Trade Setup — ${sig.optType} Option
+      </div>
+
+      <!-- Entry row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="background:rgba(0,0,0,.2);border-radius:var(--r);padding:10px 12px">
+          <div style="font-size:10px;color:var(--tm);margin-bottom:3px">Index Entry (Spot)</div>
+          <div style="font-size:20px;font-weight:700;color:var(--ac)">₹${sig.index_entry.toLocaleString('en-IN')}</div>
+          <div style="font-size:10px;color:var(--tm);margin-top:2px">Current: ₹${spot.toFixed(0)}</div>
+        </div>
+        <div style="background:rgba(0,0,0,.2);border-radius:var(--r);padding:10px 12px">
+          <div style="font-size:10px;color:var(--tm);margin-bottom:3px">Buy ${sig.optType} @ Strike</div>
+          <div style="font-size:20px;font-weight:700;color:${dc}">₹${(sig.strike||0).toLocaleString('en-IN')} ${sig.optType}</div>
+          <div style="font-size:10px;color:var(--tm);margin-top:2px">Premium ≈ ₹${sig.entryPrem}</div>
+        </div>
+      </div>
+
+      <!-- Stop Loss -->
+      <div style="background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:var(--r);padding:9px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:10px;color:var(--rd);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Stop Loss</div>
+          <div style="font-size:16px;font-weight:700;color:var(--rd)">Index below ₹${sig.index_sl.toLocaleString('en-IN')} &nbsp;OR&nbsp; Premium hits ₹${sig.slPrem}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:10px;color:var(--tm)">Max loss/lot</div>
+          <div style="font-size:14px;font-weight:600;color:var(--rd)">₹${sig.maxLoss?.toLocaleString()}</div>
+        </div>
+      </div>
+
+      <!-- Targets — 3 realistic exits -->
+      <div style="font-size:10px;color:var(--tm);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Exit Targets — based on key levels & ATR</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:var(--r);padding:8px 12px">
+          <div style="width:28px;height:28px;background:rgba(16,185,129,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gn);flex-shrink:0">T1</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:var(--gn)">Index ₹${sig.tgt1?.toLocaleString('en-IN')} → Premium ₹${sig.exitPrem1}</div>
+            <div style="font-size:10px;color:var(--tm)">Recent swing high / 0.8× ATR from entry</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:11px;font-weight:700;color:var(--gn)">+₹${sig.profitT1?.toLocaleString()}</div>
+            <div style="font-size:9px;color:var(--tm)">per lot</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);border-radius:var(--r);padding:8px 12px">
+          <div style="width:28px;height:28px;background:rgba(16,185,129,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gn);flex-shrink:0">T2</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:var(--gn)">Index ₹${sig.tgt2?.toLocaleString('en-IN')} → Premium ₹${sig.exitPrem2}</div>
+            <div style="font-size:10px;color:var(--tm)">20-day ${isBull?'high':'low'} / 1.4× ATR from entry</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:11px;font-weight:700;color:var(--gn)">+₹${sig.profitT2?.toLocaleString()}</div>
+            <div style="font-size:9px;color:var(--tm)">per lot</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(16,185,129,.02);border:1px solid rgba(16,185,129,.08);border-radius:var(--r);padding:8px 12px">
+          <div style="width:28px;height:28px;background:rgba(16,185,129,.08);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gn);flex-shrink:0">T3</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:var(--gn)">Index ₹${sig.tgt3?.toLocaleString('en-IN')} → Premium ₹${sig.exitPrem3}</div>
+            <div style="font-size:10px;color:var(--tm)">Extended target — next key level / 2× ATR</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:11px;font-weight:700;color:var(--gn)">+₹${sig.profitT3?.toLocaleString()}</div>
+            <div style="font-size:9px;color:var(--tm)">per lot</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    ${legsHtml?`<div class="legs-box"><div class="legs-title">📋 Exact Trade Legs — Specific Strike Prices</div>${legsHtml}<div class="legs-meta">Lot size: ${cfg.lot} units &nbsp;|&nbsp; Max Loss/Lot: ₹${sig.maxLossPerLot?.toLocaleString()||'--'} &nbsp;|&nbsp; Max Profit/Lot: ₹${sig.maxProfitPerLot?.toLocaleString()||'--'}</div></div>`:''}
-
-    <div class="klev">
-      <span class="g">Support: ₹${sig.sup1} / ₹${sig.sup2}</span>
-      <span class="r">Resistance: ₹${sig.res1} / ₹${sig.res2}</span>
-      <span class="a">Max Pain: ₹${_cd?.data?cMP(_cd.data||[]):mp||'--'}</span>
-      <span class="r a">Invalidation: ₹${sig.inval}</span>
-      <span class="m">PCR: ${(pcr||0).toFixed(2)} | VIX: ${(vixVal||0).toFixed(1)}</span>
+    <!-- KEY LEVELS + INDICATORS ROW -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="background:rgba(255,255,255,.025);border-radius:var(--r);padding:10px 12px">
+        <div style="font-size:10px;color:var(--tm);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Key Levels</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:11px">
+          <div style="display:flex;justify-content:space-between"><span class="t2">Support 1</span><span class="g">₹${sig.sup1?.toLocaleString('en-IN')}</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="t2">Support 2</span><span class="g">₹${sig.sup2?.toLocaleString('en-IN')}</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="t2">Resistance 1</span><span class="r">₹${sig.res1?.toLocaleString('en-IN')}</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="t2">Resistance 2</span><span class="r">₹${sig.res2?.toLocaleString('en-IN')}</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="t2">Max Pain</span><span class="a">₹${_cd?.data?cMP(_cd.data||[]):mp||'--'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="t2">Invalidate if</span><span class="r">₹${sig.inval?.toLocaleString('en-IN')}</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.025);border-radius:var(--r);padding:10px 12px">
+        <div style="font-size:10px;color:var(--tm);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Indicator Scores</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--gn)">${sig.bullPct}%</div><div style="font-size:9px;color:var(--tm)">Bull</div></div>
+          <div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--rd)">${sig.bearPct}%</div><div style="font-size:9px;color:var(--tm)">Bear</div></div>
+          <div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--am)">${vixVal?.toFixed(1)}</div><div style="font-size:9px;color:var(--tm)">VIX</div></div>
+          <div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--ac)">${pcr?.toFixed(2)}</div><div style="font-size:9px;color:var(--tm)">PCR</div></div>
+        </div>
+        ${scoreBars}
+      </div>
     </div>
 
-    <div class="stags">
+    <!-- TAGS -->
+    <div class="stags" style="margin-bottom:10px">
       <span class="stag ${tc}">${sig.direction}</span>
       <span class="stag info">Conf ${sig.confidence}/10</span>
-      <span class="stag info">${risk.toUpperCase()}</span>
+      <span class="stag info">${risk.toUpperCase()} RISK</span>
       <span class="stag neut">${sig.horizon}</span>
+      <span class="stag ${tc}">BUY ${sig.optType} ONLY</span>
       <span class="stag free">✦ Free Engine</span>
-      <span class="stag ${dataMode==='live'?'bull':'neut'}">${dataMode==='live'?'LIVE DATA':'DEMO DATA'}</span>
     </div>
 
-    <div class="so-anal">${sig.analysis}</div>
-    <div class="so-risk"><strong>⚠ Key Risks:</strong> ${sig.riskText}</div>
-    <div class="so-foot">Computed ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'})} IST · Spot ₹${spot.toFixed(0)} · Rule-based engine · No AI API used</div>
+    <!-- ANALYSIS -->
+    <div class="so-anal" style="margin-bottom:8px">${sig.analysis}</div>
+
+    <!-- RISKS -->
+    ${sig.risks?`<div class="so-risk"><strong>⚠ Watch out:</strong> ${sig.risks}</div>`:''}
+
+    <!-- TRADE RULES REMINDER -->
+    <div style="background:rgba(56,189,248,.05);border:1px solid var(--b2);border-radius:var(--r);padding:9px 12px;margin-top:10px;font-size:11px;color:var(--t2);line-height:1.9">
+      <strong style="color:var(--ac)">📌 Trade Rules:</strong>
+      Book 50% at T1 → trail SL to entry cost → let rest run to T2 or T3.
+      Exit full position if index crosses SL level or premium falls to ₹${sig.slPrem}.
+      Do NOT hold through expiry day unless in strong profit.
+    </div>
+
+    <div class="so-foot" style="margin-top:8px">Generated ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Asia/Kolkata'})} IST · Spot ₹${spot.toFixed(0)} · ${name}</div>
   </div>`;
 }
-
 function addLog(name,sig,spot){
   sigHistory.unshift({name,sig,spot,ts:new Date()});
   const el=G('sigLog');if(!el)return;
@@ -1303,9 +1497,13 @@ setInterval(()=>{if(isOpen()){Object.keys(CACHE).filter(k=>k.includes('v7/financ
 // ============================================================
 (async()=>{
   buildCards();
-  // Pre-fill GAS URL if saved
+  // Pre-fill GAS URL if already saved, and hide the banner toggle button
   const savedGas=localStorage.getItem('gas_url');
-  if(savedGas){const gi=G('gasUrl');if(gi)gi.value=savedGas;}
+  if(savedGas){
+    const gi=G('gasUrl');if(gi)gi.value=savedGas;
+    // Already configured — hide the add proxy button
+    const gb=G('gasToggleBtn');if(gb)gb.style.display='none';
+  }
   await loadAll();
 })();
 
@@ -1327,19 +1525,18 @@ let hzScanTime = null;
 
 async function scanAllIndices(){
   const btn = G('scanBtn');
-  btn.disabled = true; btn.textContent = '↻ Scanning...';
+  btn.disabled = true; btn.textContent = '⚡ Scanning...';
 
   // Show loading skeleton
   G('hzBody').innerHTML = HZ_INDICES.map(idx => `
     <tr id="hzRow-${idx.id}">
-      <td colspan="9">
+      <td colspan="11">
         <div class="hz-row hz-loading">
           <div class="spin" style="margin-right:8px"></div>
           <span style="color:var(--tm)">Scanning ${idx.label}...</span>
         </div>
       </td>
     </tr>`).join('');
-  G('hzSummary').style.display = 'none';
   G('hzDetail').style.display = 'none';
 
   const risk = G('hzRisk')?.value || 'safe';
@@ -1362,7 +1559,7 @@ async function scanAllIndices(){
   renderHZTable(scanResults, vixVal);
   addToHZHistory(scanResults, risk);
 
-  btn.disabled = false; btn.textContent = '↻ Scan All Indices';
+  btn.disabled = false; btn.textContent = '⚡ Scan All 5 Indices';
 }
 
 async function scanIndex(idx, risk, expiryPref, vixVal, avgFII){
@@ -1421,313 +1618,201 @@ async function scanIndex(idx, risk, expiryPref, vixVal, avgFII){
 }
 
 function buildTradeContract(sig, idx, expiry, atm, spot, chainData, risk){
+  // Always BUY only — CE for bullish, PE for bearish
+  const isBull = sig.direction === 'BULLISH';
+  const optType = isBull ? 'CE' : 'PE';
   const step = idx.step;
-  const dir = sig.direction;
+  const lot = idx.lot;
 
-  if(dir === 'NEUTRAL'){
-    // Iron Condor
-    const sellCE = atm + step;
-    const sellPE = atm - step;
-    const scRow = chainData.find(d => d.strikePrice === sellCE) || {};
-    const spRow = chainData.find(d => d.strikePrice === sellPE) || {};
-    const scLTP = +(scRow.CE?.lastPrice || 0) || (idx.lot > 30 ? 80 : 200);
-    const spLTP = +(spRow.PE?.lastPrice || 0) || (idx.lot > 30 ? 75 : 190);
-    const premium = +(scLTP + spLTP).toFixed(1);
-    return {
-      type:'IRON CONDOR', optType:'SELL CE+PE',
-      sellCE, sellPE, buyCE: atm+step*3, buyPE: atm-step*3,
-      expiry, premium,
-      target: +(premium * 0.85).toFixed(1),   // target: keep 85% of premium
-      sl:     +(premium * 1.25).toFixed(1),    // SL: 25% loss on premium
-      tgtPct: -15, slPct: 25,
-      lot: idx.lot,
-      maxLoss:  Math.round(step * 2 * idx.lot),
-      maxProfit:Math.round(premium * idx.lot),
-      label: `Sell ${sellCE}CE + Sell ${sellPE}PE`,
-      sublabel: `Buy ${atm+step*3}CE + Buy ${atm-step*3}PE (hedge) · ${expiry}`,
-    };
-  }
+  // Strike selection
+  let strike;
+  if(risk==='safe') strike = atm;
+  else if(risk==='moderate') strike = isBull ? atm+step : atm-step;
+  else strike = isBull ? atm+step*2 : atm-step*2;
 
-  if(dir === 'BULLISH'){
-    let strike, optRow, ltp;
-    if(risk === 'safe'){
-      // Bull Call Spread: Buy ATM CE + Sell OTM CE
-      const buyStrike = atm;
-      const sellStrike = atm + step * 2;
-      const buyRow = chainData.find(d => d.strikePrice === buyStrike) || {};
-      const sellRow = chainData.find(d => d.strikePrice === sellStrike) || {};
-      const buyLTP = +(buyRow.CE?.lastPrice || 0) || Math.max(5, spot*0.004);
-      const sellLTP = +(sellRow.CE?.lastPrice || 0) || Math.max(2, buyLTP*0.4);
-      const netPrem = +(buyLTP - sellLTP).toFixed(1);
-      const tgt = +(netPrem * 1.15).toFixed(1);
-      const sl  = +(netPrem * 0.95).toFixed(1);
-      return {
-        type:'BULL CALL SPREAD', optType:'BUY CE',
-        strike: buyStrike, sellStrike,
-        expiry, premium: netPrem,
-        target: tgt, sl,
-        tgtPct: 15, slPct: -5,
-        lot: idx.lot,
-        maxLoss:  Math.round(netPrem * idx.lot),
-        maxProfit:Math.round((step*2 - netPrem) * idx.lot),
-        label: `Buy ${buyStrike} CE`,
-        sublabel: `Sell ${sellStrike} CE (spread) · Net Premium ₹${netPrem} · ${expiry}`,
-      };
-    } else {
-      // Long CE
-      strike = risk === 'moderate' ? atm : atm + step;
-      optRow = chainData.find(d => d.strikePrice === strike) || {};
-      ltp = +(optRow.CE?.lastPrice || 0) || Math.max(5, spot*0.003);
-      const tgt = +(ltp * 1.15).toFixed(1);
-      const sl  = +(ltp * 0.95).toFixed(1);
-      return {
-        type:'LONG CE', optType:'BUY CE',
-        strike, expiry, premium: ltp,
-        target: tgt, sl,
-        tgtPct: 15, slPct: -5,
-        lot: idx.lot,
-        maxLoss:  Math.round(ltp * idx.lot),
-        maxProfit:Math.round(ltp * idx.lot * 3),
-        label: `Buy ${strike} CE`,
-        sublabel: `${expiry} · LTP ₹${ltp.toFixed(1)}`,
-      };
-    }
-  }
+  // Get premium from chain or approximate
+  const row = chainData.find(d => d.strikePrice === strike) || {};
+  const rawLTP = +(isBull ? row.CE?.lastPrice : row.PE?.lastPrice) || 0;
 
-  if(dir === 'BEARISH'){
-    let strike, optRow, ltp;
-    if(risk === 'safe'){
-      // Bear Put Spread
-      const buyStrike = atm;
-      const sellStrike = atm - step * 2;
-      const buyRow = chainData.find(d => d.strikePrice === buyStrike) || {};
-      const sellRow = chainData.find(d => d.strikePrice === sellStrike) || {};
-      const buyLTP = +(buyRow.PE?.lastPrice || 0) || Math.max(5, spot*0.004);
-      const sellLTP = +(sellRow.PE?.lastPrice || 0) || Math.max(2, buyLTP*0.4);
-      const netPrem = +(buyLTP - sellLTP).toFixed(1);
-      const tgt = +(netPrem * 1.15).toFixed(1);
-      const sl  = +(netPrem * 0.95).toFixed(1);
-      return {
-        type:'BEAR PUT SPREAD', optType:'BUY PE',
-        strike: buyStrike, sellStrike,
-        expiry, premium: netPrem,
-        target: tgt, sl,
-        tgtPct: 15, slPct: -5,
-        lot: idx.lot,
-        maxLoss:  Math.round(netPrem * idx.lot),
-        maxProfit:Math.round((step*2 - netPrem) * idx.lot),
-        label: `Buy ${buyStrike} PE`,
-        sublabel: `Sell ${sellStrike} PE (spread) · Net Premium ₹${netPrem} · ${expiry}`,
-      };
-    } else {
-      strike = risk === 'moderate' ? atm : atm - step;
-      optRow = chainData.find(d => d.strikePrice === strike) || {};
-      ltp = +(optRow.PE?.lastPrice || 0) || Math.max(5, spot*0.003);
-      const tgt = +(ltp * 1.15).toFixed(1);
-      const sl  = +(ltp * 0.95).toFixed(1);
-      return {
-        type:'LONG PE', optType:'BUY PE',
-        strike, expiry, premium: ltp,
-        target: tgt, sl,
-        tgtPct: 15, slPct: -5,
-        lot: idx.lot,
-        maxLoss:  Math.round(ltp * idx.lot),
-        maxProfit:Math.round(ltp * idx.lot * 3),
-        label: `Buy ${strike} PE`,
-        sublabel: `${expiry} · LTP ₹${ltp.toFixed(1)}`,
-      };
-    }
-  }
+  // Delta by moneyness
+  const delta = risk==='safe' ? 0.50 : risk==='moderate' ? 0.35 : 0.22;
+
+  // Estimate premium from ATM if not available
+  const atmRow = chainData.find(d => d.strikePrice === atm) || {};
+  const atmLTP = +(isBull ? atmRow.CE?.lastPrice : atmRow.PE?.lastPrice) || Math.max(5, sig.atr*0.35||spot*0.003);
+  const premium = rawLTP > 0.5 ? rawLTP : (risk==='safe' ? atmLTP : risk==='moderate' ? Math.max(2,atmLTP*0.55) : Math.max(1,atmLTP*0.30));
+
+  // Realistic exits from computeSignal (index levels → premium via delta)
+  const move1 = Math.abs((sig.tgt1||spot) - spot);
+  const move2 = Math.abs((sig.tgt2||spot) - spot);
+  const move3 = Math.abs((sig.tgt3||spot) - spot);
+  const tgt1prem = Math.max(premium+1, Math.round((premium + move1*delta)*10)/10);
+  const tgt2prem = Math.max(tgt1prem+2, Math.round((premium + move2*delta)*10)/10);
+  const tgt3prem = Math.max(tgt2prem+3, Math.round((premium + move3*delta)*10)/10);
+  const slPrem   = Math.max(0.5, Math.round((premium - Math.abs((sig.index_sl||spot)-spot)*delta)*10)/10);
+
+  const profitT1 = Math.round((tgt1prem - premium) * lot);
+  const profitT2 = Math.round((tgt2prem - premium) * lot);
+  const maxLoss  = Math.round(premium * lot);
+
+  return {
+    type: `BUY ${optType}`, optType: `BUY ${optType}`,
+    strike, expiry, premium: +premium.toFixed(1),
+    tgt1prem: tgt1prem.toFixed(1),
+    tgt2prem: tgt2prem.toFixed(1),
+    tgt3prem: tgt3prem.toFixed(1),
+    slPrem:   slPrem.toFixed(1),
+    tgt1idx:  sig.tgt1||spot, tgt2idx: sig.tgt2||spot, tgt3idx: sig.tgt3||spot,
+    indexSL:  sig.index_sl||spot,
+    lot, maxLoss, profitT1, profitT2,
+    label: `Buy ${strike} ${optType}`,
+    sublabel: `${expiry} · Entry ₹${premium.toFixed(1)} · SL ₹${slPrem.toFixed(1)}`,
+  };
 }
-
 function renderHZTable(results, vixVal){
   const body = G('hzBody');
-  let bullC=0, bearC=0, neutC=0;
+  let bullC=0, bearC=0;
 
   body.innerHTML = results.map(r => {
-    if(!r.success || !r.sig){
-      return `<tr>
-        <td colspan="9">
-          <div class="hz-row">
-            <span class="hz-idx">${r.idx.name}</span>
-            <span style="color:var(--tm);font-size:11px;margin-left:8px">⚠ ${r.error||'Scan failed'}</span>
-          </div>
-        </td>
-      </tr>`;
+    if(!r.success || !r.sig || !r.tradeContract){
+      return `<tr><td colspan="11" class="te" style="color:var(--rd)">⚠ ${r.idx.label} — ${r.error||'scan failed'}</td></tr>`;
     }
+    const {idx, spot, sig, tradeContract:tc} = r;
+    const isBull = sig.direction==='BULLISH';
+    if(isBull) bullC++; else bearC++;
+    const dc = isBull?'var(--gn)':'var(--rd)';
+    const di = isBull?'↑ BUY CE':'↓ BUY PE';
+    const cc = sig.confidence>=8?'var(--gn)':sig.confidence>=6?'var(--am)':'var(--rd)';
 
-    const {idx, spot, sig, tradeContract: tc} = r;
-    const dir = sig.direction;
-    if(dir==='BULLISH') bullC++;
-    else if(dir==='BEARISH') bearC++;
-    else neutC++;
-
-    const dirCls = dir==='BULLISH'?'bull':dir==='BEARISH'?'bear':'neut';
-    const dirIcon = dir==='BULLISH'?'↑ BULLISH':dir==='BEARISH'?'↓ BEARISH':'→ NEUTRAL';
-    const confColor = sig.confidence>=8?'var(--gn)':sig.confidence>=6?'var(--am)':'var(--rd)';
-
-    if(!tc) return `<tr><td colspan="9"><div class="hz-row"><span class="hz-idx">${idx.name}</span><span class="m" style="margin-left:8px">No signal</span></div></td></tr>`;
-
-    return `<tr>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div style="min-width:110px">
-          <div class="hz-idx">${idx.name}</div>
-          <div style="font-size:10px;color:var(--tm)">${idx.label}</div>
-        </div>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--t1)">₹${spot.toLocaleString('en-IN',{maximumFractionDigits:0})}</div>
-          <div style="font-size:10px;color:${r.sig.direction==='BULLISH'?'var(--gn)':'var(--rd)'}">${r.sig.direction==='BULLISH'?'+':''}</div>
-        </div>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <span class="hz-dir-badge ${dirCls}">${dirIcon}</span>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div>
-          <div class="hz-trade-name">${tc.type} — ${tc.label}</div>
-          <div class="hz-trade-sub">${tc.sublabel}</div>
-        </div>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:var(--ac)">₹${tc.premium}</div>
-          <div style="font-size:10px;color:var(--tm)">Premium/lot</div>
-        </div>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:var(--gn)">₹${tc.target}</div>
-          <div style="font-size:10px;color:var(--gn)">+${tc.tgtPct}%</div>
-        </div>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:var(--rd)">₹${tc.sl}</div>
-          <div style="font-size:10px;color:var(--rd)">${tc.slPct}%</div>
-        </div>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div>
-          <div style="font-size:12px;font-weight:600;color:var(--t2)">₹${tc.maxLoss.toLocaleString('en-IN')}</div>
-          <div style="font-size:10px;color:var(--tm)">${idx.lot} units/lot</div>
-        </div>
-      </div></td>
-      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
-        <div>
-          <div class="hz-conf-num" style="color:${confColor}">${sig.confidence}/10</div>
-          <div class="hz-conf-bar" style="background:${confColor};width:${sig.confidence*10}%;max-width:60px"></div>
-        </div>
-      </div></td>
+    return `<tr style="cursor:pointer" onclick="showHZDetail('${idx.id}')">
+      <td style="padding:10px 12px">
+        <div style="font-weight:700;font-size:13px;color:var(--t1)">${idx.label}</div>
+        <div style="font-size:10px;color:var(--tm)">${idx.tag}</div>
+      </td>
+      <td style="padding:10px 8px;text-align:right">
+        <div style="font-weight:600;font-size:13px">₹${spot.toLocaleString('en-IN',{maximumFractionDigits:0})}</div>
+      </td>
+      <td style="padding:10px 8px;text-align:center">
+        <span style="background:${isBull?'rgba(16,185,129,.12)':'rgba(244,63,94,.12)'};color:${dc};border:1px solid ${isBull?'rgba(16,185,129,.3)':'rgba(244,63,94,.3)'};padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700">${di}</span>
+      </td>
+      <td style="padding:10px 8px;text-align:center">
+        <div style="font-weight:700;font-size:13px;color:${dc}">₹${tc.strike.toLocaleString('en-IN')} ${tc.optType.replace('BUY ','')}</div>
+        <div style="font-size:10px;color:var(--tm)">${tc.expiry}</div>
+      </td>
+      <td style="padding:10px 8px;text-align:right">
+        <div style="font-weight:700;font-size:14px;color:var(--ac)">₹${tc.premium}</div>
+        <div style="font-size:10px;color:var(--tm)">entry prem</div>
+      </td>
+      <td style="padding:10px 8px;text-align:right">
+        <div style="font-weight:700;font-size:13px;color:var(--rd)">idx ₹${(tc.indexSL||0).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:var(--rd)">prem ₹${tc.slPrem}</div>
+      </td>
+      <td style="padding:10px 8px;text-align:right">
+        <div style="font-size:11px;font-weight:600;color:var(--gn)">idx ₹${(tc.tgt1idx||0).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:var(--gn)">prem ₹${tc.tgt1prem}</div>
+      </td>
+      <td style="padding:10px 8px;text-align:right">
+        <div style="font-size:11px;font-weight:600;color:var(--gn)">idx ₹${(tc.tgt2idx||0).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:var(--gn)">prem ₹${tc.tgt2prem}</div>
+      </td>
+      <td style="padding:10px 8px;text-align:right">
+        <div style="font-size:11px;font-weight:600;color:var(--gn)">idx ₹${(tc.tgt3idx||0).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:var(--gn)">prem ₹${tc.tgt3prem}</div>
+      </td>
+      <td style="padding:10px 8px;text-align:right">
+        <div style="font-size:11px;font-weight:600;color:var(--rd)">₹${tc.maxLoss.toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:var(--tm)">${tc.lot} units</div>
+      </td>
+      <td style="padding:10px 8px;text-align:center">
+        <div style="font-weight:700;font-size:14px;color:${cc}">${sig.confidence}/10</div>
+      </td>
     </tr>`;
   }).join('');
 
-  // Summary bar
-  const sumEl = G('hzSummary');
-  sumEl.style.display = 'flex';
-  sT('hzBullCount', `${bullC} Bullish`);
-  sT('hzBearCount', `${bearC} Bearish`);
-  sT('hzNeutCount', `${neutC} Neutral`);
-  sH('hzVixBadge', `<span style="font-size:11px;color:${vixVal<14?'var(--gn)':vixVal<20?'var(--am)':'var(--rd)'};font-weight:600">VIX ${vixVal.toFixed(1)} — ${vixVal<14?'Low (Buy premium)':vixVal<20?'Moderate':vixVal<26?'High (Reduce size)':'Extreme Fear'}</span>`);
-
-  // Scan time
-  const existing = G('hzScanTime');
-  if(!existing){
-    const t = document.createElement('div');
-    t.id = 'hzScanTime';
-    t.className = 'scan-time';
-    t.textContent = `Last scanned: ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Asia/Kolkata'})} IST`;
-    G('hzTable').parentNode.appendChild(t);
-  } else {
-    existing.textContent = `Last scanned: ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Asia/Kolkata'})} IST`;
-  }
+  // VIX note below table
+  const vixNote = document.createElement('div');
+  vixNote.style.cssText='font-size:11px;padding:8px 4px;color:var(--t2);margin-top:6px;display:flex;justify-content:space-between;align-items:center';
+  vixNote.innerHTML = `<span>↑ BUY CE &nbsp;|&nbsp; ↓ BUY PE &nbsp;|&nbsp; T1=50% exit, trail SL to cost, T2=next 25%, T3=let run</span><span style="color:${vixVal<16?'var(--gn)':vixVal<22?'var(--am)':'var(--rd)'};font-weight:600">VIX ${vixVal.toFixed(1)} ${vixVal<16?'— Options Cheap':vixVal<22?'— Moderate':vixVal<28?'— High (size down!)':'— PANIC (size down!)'}</span>`;
+  const tw = G('hzTable').parentNode;
+  const existing = tw.querySelector('.vix-note-row');
+  if(existing) existing.remove();
+  vixNote.className = 'vix-note-row';
+  tw.appendChild(vixNote);
 }
-
 function showHZDetail(idxId){
   const r = hzResults.find(x => x.idx.id === idxId);
   if(!r || !r.sig || !r.tradeContract) return;
-
   const detail = G('hzDetail');
   detail.style.display = 'block';
   detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+  const {idx, spot, sig, tradeContract:tc, pcr, mp, atm, ind, vixVal} = r;
+  const isBull = sig.direction==='BULLISH';
+  const dc = isBull?'var(--gn)':'var(--rd)';
 
-  const {idx, spot, sig, tradeContract: tc, pcr, mp, atm, ind} = r;
-  const dir = sig.direction;
-  const dirColor = dir==='BULLISH'?'var(--gn)':dir==='BEARISH'?'var(--rd)':'var(--am)';
+  detail.innerHTML = `
+    <div class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="plbl" style="margin-bottom:2px">${idx.label} — ${tc.label} · ${tc.expiry}</div>
+          <div style="font-size:11px;color:var(--tm)">Click any row to see detail · Exits based on price structure & ATR</div>
+        </div>
+        <button onclick="G('hzDetail').style.display='none'" style="background:none;border:1px solid var(--b1);color:var(--t2);font-family:var(--mo);font-size:11px;padding:4px 12px;border-radius:var(--r);cursor:pointer">✕ Close</button>
+      </div>
 
-  sT('hzDetailTitle', `${idx.name} — ${tc.type} Detail`);
+      <!-- Trade summary row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+        <div style="background:rgba(56,189,248,.06);border:1px solid var(--b2);border-radius:var(--r);padding:10px 12px">
+          <div style="font-size:10px;color:var(--tm);margin-bottom:3px">BUY</div>
+          <div style="font-size:18px;font-weight:700;color:${dc}">₹${tc.strike.toLocaleString('en-IN')} ${tc.optType.replace('BUY ','')}</div>
+          <div style="font-size:10px;color:var(--tm)">Premium ≈ ₹${tc.premium} &nbsp;|&nbsp; Expiry ${tc.expiry}</div>
+        </div>
+        <div style="background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.2);border-radius:var(--r);padding:10px 12px">
+          <div style="font-size:10px;color:var(--rd);font-weight:600;margin-bottom:3px">STOP LOSS</div>
+          <div style="font-size:14px;font-weight:700;color:var(--rd)">Index ₹${(tc.indexSL||0).toLocaleString('en-IN')}</div>
+          <div style="font-size:11px;color:var(--rd)">OR premium hits ₹${tc.slPrem}</div>
+          <div style="font-size:10px;color:var(--tm);margin-top:2px">Max loss ≈ ₹${tc.maxLoss.toLocaleString('en-IN')}/lot</div>
+        </div>
+        <div style="background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:var(--r);padding:10px 12px">
+          <div style="font-size:10px;color:var(--gn);font-weight:600;margin-bottom:3px">TARGETS (Index → Premium)</div>
+          <div style="font-size:12px;font-weight:700;color:var(--gn)">T1: ₹${(tc.tgt1idx||0).toLocaleString('en-IN')} → ₹${tc.tgt1prem}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--gn)">T2: ₹${(tc.tgt2idx||0).toLocaleString('en-IN')} → ₹${tc.tgt2prem}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--gn)">T3: ₹${(tc.tgt3idx||0).toLocaleString('en-IN')} → ₹${tc.tgt3prem}</div>
+        </div>
+        <div style="background:rgba(255,255,255,.025);border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px">
+          <div style="font-size:10px;color:var(--tm);margin-bottom:3px">P&L per Lot (${tc.lot} units)</div>
+          <div style="font-size:12px;color:var(--rd)">Risk: ₹${tc.maxLoss.toLocaleString()}</div>
+          <div style="font-size:12px;color:var(--gn)">T1 Profit: +₹${tc.profitT1?.toLocaleString()}</div>
+          <div style="font-size:12px;color:var(--gn)">T2 Profit: +₹${tc.profitT2?.toLocaleString()}</div>
+          <div style="font-size:11px;color:var(--tm);margin-top:3px">R:R = ${sig.rr}</div>
+        </div>
+      </div>
 
-  // Indicator scores for display
-  const indRows = [
-    {name:'RSI (14)',  val:ind.rsi?.toFixed(1)||'--', score:ind.rsi||50, bull:ind.rsi<50, sig:iRSI(ind.rsi).t},
-    {name:'MACD',      val:ind.macd?.[ind.macd.length-1]?.histogram?.toFixed(2)||'--', score:50, bull:ind.macd?.[ind.macd.length-1]?.histogram>0, sig:iMACD(ind.macd).t},
-    {name:'EMA Trend', val:ind.e20?.toFixed(0)||'--', score:ind.price>ind.e20?65:35, bull:ind.price>ind.e20, sig:iEMA(ind.price,ind.e20,ind.e50,ind.e200).t},
-    {name:'BB',        val:ind.bb?((ind.price-ind.bb.lower)/(ind.bb.upper-ind.bb.lower)*100).toFixed(0)+'%':'--', score:ind.bb?(ind.price-ind.bb.lower)/(ind.bb.upper-ind.bb.lower)*100:50, bull:ind.bb?(ind.price-ind.bb.lower)/(ind.bb.upper-ind.bb.lower)<0.5:true, sig:iBB(ind.bb,ind.price).t},
-    {name:'PCR',       val:pcr?.toFixed(2)||'--', score:Math.min(100,pcr*50), bull:pcr>1, sig:pcr>1.2?'Bullish (high PE OI)':pcr<0.8?'Bearish (high CE OI)':'Neutral'},
-  ];
+      <!-- Exit strategy note -->
+      <div style="background:rgba(56,189,248,.04);border:1px solid var(--b2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--t2);line-height:2">
+        <strong style="color:var(--ac)">📌 Exit Plan:</strong>
+        Book <strong>50% at T1</strong> (₹${tc.tgt1prem}) → move SL to cost price → hold rest.
+        Book another <strong>25% at T2</strong> (₹${tc.tgt2prem}) → trail SL.
+        Let last <strong>25% run to T3</strong> (₹${tc.tgt3prem}) or exit at close.
+        Exit full if index crosses ₹${(tc.indexSL||0).toLocaleString('en-IN')} OR premium drops to ₹${tc.slPrem}.
+      </div>
 
-  sH('hzDetailBody', `
-    <div class="hz-detail-grid">
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">Trade</div>
-        <div class="hz-dm-v" style="color:var(--ac);font-size:13px">${tc.type}</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:3px">${tc.label}</div>
+      <!-- Indicator Scorecard -->
+      <div style="background:rgba(255,255,255,.02);border-radius:var(--r);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:10px;color:var(--ac);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Indicator Scorecard · ${sig.bullPct}% Bull vs ${sig.bearPct}% Bear</div>
+        ${(sig.indScores||[]).map(s=>`
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:10px;color:var(--t2);width:38px;flex-shrink:0">${s.label}</span>
+            <div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden"><div style="width:${s.score}%;height:100%;background:${s.bull?'var(--gn)':'var(--rd)'};border-radius:3px"></div></div>
+            <span style="font-size:10px;font-weight:600;color:${s.bull?'var(--gn)':'var(--rd)'};width:24px;text-align:right">${s.score}</span>
+          </div>`).join('')}
       </div>
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">Direction</div>
-        <div class="hz-dm-v" style="color:${dirColor}">${dir}</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:3px">Confidence ${sig.confidence}/10</div>
-      </div>
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">Index Entry Level</div>
-        <div class="hz-dm-v c">₹${(sig.index_entry||spot).toFixed(0)}</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:3px">Spot: ₹${spot.toFixed(0)}</div>
-      </div>
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">Option Premium</div>
-        <div class="hz-dm-v c">₹${tc.premium}</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:3px">per lot (${idx.lot} units)</div>
-      </div>
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">Target Premium</div>
-        <div class="hz-dm-v g">₹${tc.target} <span style="font-size:11px">(+${tc.tgtPct}%)</span></div>
-        <div style="font-size:11px;color:var(--gn);margin-top:3px">Max Profit ≈ ₹${tc.maxProfit?.toLocaleString('en-IN')}/lot</div>
-      </div>
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">Stop Loss Premium</div>
-        <div class="hz-dm-v r">₹${tc.sl} <span style="font-size:11px">(${tc.slPct}%)</span></div>
-        <div style="font-size:11px;color:var(--rd);margin-top:3px">Max Loss ≈ ₹${tc.maxLoss?.toLocaleString('en-IN')}/lot</div>
-      </div>
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">ATM Strike</div>
-        <div class="hz-dm-v c">₹${atm?.toLocaleString('en-IN')}</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:3px">Max Pain: ₹${mp?.toLocaleString('en-IN')}</div>
-      </div>
-      <div class="hz-detail-metric">
-        <div class="hz-dm-l">PCR / Expiry</div>
-        <div class="hz-dm-v" style="color:${pcr>1?'var(--gn)':'var(--rd)'}">${pcr?.toFixed(2)}</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:3px">${r.expiry}</div>
-      </div>
-    </div>
 
-    <div style="background:rgba(255,255,255,.025);border-radius:var(--r);padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:600;color:var(--ac);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Indicator Scorecard</div>
-      ${indRows.map(ir=>`
-        <div class="hz-ind-row">
-          <span class="hz-ind-name">${ir.name}</span>
-          <div class="hz-ind-bar-wrap"><div class="hz-ind-bar" style="width:${Math.min(100,Math.max(5,ir.score))}%;background:${ir.bull?'var(--gn)':'var(--rd)'}"></div></div>
-          <span class="hz-ind-val" style="color:${ir.bull?'var(--gn)':'var(--rd)'}">${ir.val}</span>
-          <span class="hz-ind-sig t2">${ir.sig}</span>
-        </div>`).join('')}
-    </div>
-
-    <div style="font-size:11px;color:var(--t2);line-height:1.9;border-left:2px solid var(--b3);padding-left:11px;margin-bottom:10px">${sig.analysis}</div>
-    ${sig.riskText?`<div style="font-size:11px;color:var(--am);line-height:1.8;padding:8px 10px;background:var(--amd);border-radius:var(--r)"><strong>⚠ Risks:</strong> ${sig.riskText}</div>`:''}
-    <div style="font-size:10px;color:var(--tm);margin-top:8px;text-align:right">Generated ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'})} IST · Click another row to switch</div>
-  `);
+      <!-- Analysis -->
+      <div style="font-size:11px;color:var(--t2);line-height:1.9;border-left:2px solid var(--b3);padding-left:11px;margin-bottom:8px">${sig.analysis}</div>
+      ${sig.risks?`<div style="font-size:11px;color:var(--am);line-height:1.8;padding:8px 10px;background:var(--amd);border-radius:var(--r)"><strong>⚠ Watch:</strong> ${sig.risks}</div>`:''}
+      <div style="font-size:10px;color:var(--tm);margin-top:8px">Click another row to switch index · Generated ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'})} IST</div>
+    </div>`;
 }
-
 function addToHZHistory(results, risk){
   const el = G('hzHistory');
   const ts = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
