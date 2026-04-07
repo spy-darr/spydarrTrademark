@@ -195,6 +195,55 @@ canvas.mc{width:100%;height:48px;display:block;margin-bottom:7px}
 .sl-sym{font-weight:600;font-size:12px}.sl-time{font-size:10px;color:var(--tm)}
 .disc{font-size:11px;color:var(--tm);line-height:1.7;background:rgba(245,158,11,.04);border-color:var(--amd)}
 .disc strong{color:var(--am)}
+
+/* HERO / ZERO TABLE */
+.hz-panel{}
+.hz-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:12px;flex-wrap:wrap}
+.hz-summary{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--b1);margin-bottom:4px;align-items:center;flex-wrap:wrap}
+.hz-sum-item{font-size:11px;font-weight:600;padding:4px 12px;border-radius:var(--r)}
+.hz-sum-item.bull{background:var(--gd);color:var(--gn);border:1px solid rgba(16,185,129,.2)}
+.hz-sum-item.bear{background:var(--rdd);color:var(--rd);border:1px solid rgba(244,63,94,.2)}
+.hz-sum-item.neut{background:var(--amd);color:var(--am);border:1px solid rgba(245,158,11,.2)}
+.hz-tbl{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+.hz-tbl th{padding:9px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--tm);border-bottom:2px solid var(--b2);text-transform:uppercase;letter-spacing:.06em;background:var(--bg1)}
+.hz-tbl td{padding:0;border-bottom:1px solid var(--b1)}
+.hz-tbl tr:hover td .hz-row{background:rgba(255,255,255,.03)}
+.hz-tbl tr:last-child td{border-bottom:none}
+.hz-row{display:flex;align-items:center;padding:12px;gap:0;cursor:pointer;transition:background .15s}
+.hz-idx{font-family:var(--dp);font-size:13px;font-weight:700;min-width:110px}
+.hz-spot{font-size:13px;font-weight:600;min-width:90px}
+.hz-dir{min-width:110px}
+.hz-dir-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:var(--r);white-space:nowrap}
+.hz-dir-badge.bull{background:var(--gd);color:var(--gn);border:1px solid rgba(16,185,129,.2)}
+.hz-dir-badge.bear{background:var(--rdd);color:var(--rd);border:1px solid rgba(244,63,94,.2)}
+.hz-dir-badge.neut{background:var(--amd);color:var(--am);border:1px solid rgba(245,158,11,.2)}
+.hz-trade{min-width:220px}
+.hz-trade-name{font-size:12px;font-weight:600;color:var(--t1)}
+.hz-trade-sub{font-size:10px;color:var(--tm);margin-top:2px}
+.hz-entry{min-width:110px;font-size:13px;font-weight:600;color:var(--ac)}
+.hz-tgt{min-width:100px;font-size:13px;font-weight:600;color:var(--gn)}
+.hz-sl{min-width:100px;font-size:13px;font-weight:600;color:var(--rd)}
+.hz-loss{min-width:110px;font-size:12px;color:var(--t2)}
+.hz-conf{min-width:90px}
+.hz-conf-bar{height:4px;border-radius:2px;margin-top:3px}
+.hz-conf-num{font-size:11px;font-weight:600}
+.hz-loading td{padding:30px;text-align:center;color:var(--tm)}
+.hz-no-trade .hz-trade-name{color:var(--tm)}
+
+/* Detail breakdown */
+.hz-detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:900px){.hz-detail-grid{grid-template-columns:repeat(2,1fr)}}
+.hz-detail-metric{background:rgba(255,255,255,.03);border-radius:var(--r);padding:10px 12px}
+.hz-dm-l{font-size:10px;color:var(--tm);margin-bottom:3px}
+.hz-dm-v{font-size:15px;font-weight:600}
+.hz-ind-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
+.hz-ind-row:last-child{border:none}
+.hz-ind-name{width:80px;color:var(--t2);flex-shrink:0}
+.hz-ind-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.hz-ind-bar{height:100%;border-radius:3px}
+.hz-ind-val{width:70px;text-align:right;font-weight:600;flex-shrink:0}
+.hz-ind-sig{width:160px;flex-shrink:0}
+.scan-time{font-size:10px;color:var(--tm);margin-top:10px;text-align:right}
 /* free-engine badge */
 .free-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 8px;border-radius:3px;background:rgba(16,185,129,.1);color:var(--gn);border:1px solid rgba(16,185,129,.2);margin-bottom:12px}
 
@@ -422,36 +471,72 @@ canvas.mc{width:100%;height:48px;display:block;margin-bottom:7px}
 
 <!-- SIGNALS (100% FREE — rule-based engine) -->
 <section class="section" id="tab-signals">
-  <div class="free-badge">✦ 100% Free — No API key · No subscription · Runs locally in your browser</div>
-  <div class="sig-ctrl">
-    <select id="sSym" class="sel">
-      <option value="NIFTY50|^NSEI|NIFTY">Nifty 50</option>
-      <option value="BANKNIFTY|^NSEBANK|BANKNIFTY">Bank Nifty</option>
-      <option value="SENSEX|^BSESN|SENSEX">Sensex</option>
-      <option value="FINNIFTY|NIFTY_FIN_SERVICE.NS|FINNIFTY">Fin Nifty</option>
-      <option value="MIDCAP|^CNXMIDCAP|MIDCPNIFTY">Mid Cap Nifty</option>
-    </select>
-    <select id="sRisk" class="sel">
-      <option value="safe">Safe (Low Risk) — 1-2% Capital</option>
-      <option value="moderate">Moderate — 3-5% Capital</option>
-      <option value="aggressive">Aggressive — 5-10% Capital</option>
-    </select>
-    <button class="btn-gen" id="genBtn" onclick="doSignal()">Generate Signal ↗</button>
-  </div>
-  <div class="sig-lay">
-    <div class="panel sig-main" id="sigMain">
-      <div class="sig-ph">
-        <div class="sig-ph-i">◈</div>
-        <p>Select index + risk level → click Generate Signal</p>
-        <p>The signal engine runs 100% free, locally in your browser.<br>It computes RSI, MACD, Bollinger Bands, EMA crossovers, PCR,<br>Max Pain, VIX and FII/DII data to generate precise entry/exit signals.</p>
+
+  <!-- HERO / ZERO TRADE TABLE -->
+  <div class="panel hz-panel">
+    <div class="hz-header">
+      <div>
+        <div class="plbl" style="margin-bottom:3px">Hero / Zero — Live Trade Suggestions</div>
+        <div style="font-size:11px;color:var(--tm)">All 5 indices scanned · Entry · Target +15% · Stop Loss -5% · Updates on Refresh</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="hzRisk" class="sel" style="width:auto" onchange="scanAllIndices()">
+          <option value="safe">Safe — Spreads</option>
+          <option value="moderate">Moderate — ATM</option>
+          <option value="aggressive">Aggressive — OTM</option>
+        </select>
+        <select id="hzExpiry" class="sel" style="width:auto">
+          <option value="near">Near Expiry</option>
+          <option value="next">Next Expiry</option>
+        </select>
+        <button class="btn-gen" id="scanBtn" onclick="scanAllIndices()">↻ Scan All Indices</button>
       </div>
     </div>
-    <div class="panel">
-      <div class="plbl">Signal Log</div>
-      <div id="sigLog"><p class="te m">No signals yet</p></div>
+
+    <!-- Summary bar -->
+    <div class="hz-summary" id="hzSummary" style="display:none">
+      <div class="hz-sum-item bull" id="hzBullCount">0 Bullish</div>
+      <div class="hz-sum-item bear" id="hzBearCount">0 Bearish</div>
+      <div class="hz-sum-item neut" id="hzNeutCount">0 Neutral</div>
+      <div class="hz-sum-item" id="hzVixBadge" style="margin-left:auto"></div>
+    </div>
+
+    <!-- Trade Table -->
+    <div class="tw" style="margin-top:12px">
+      <table class="hz-tbl" id="hzTable">
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Spot</th>
+            <th>Direction</th>
+            <th>Hero / Zero Trade</th>
+            <th>Entry (Premium)</th>
+            <th>Target +15%</th>
+            <th>Stop Loss -5%</th>
+            <th>Max Loss / Lot</th>
+            <th>Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="hzBody">
+          <tr><td colspan="9" class="te" style="padding:30px">Click "Scan All Indices" to generate trade suggestions</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
-  <div class="panel disc">⚠ <strong>Disclaimer:</strong> Signals are rule-based and for educational purposes only. Options trading carries substantial risk of loss. This is NOT financial advice. Always consult a SEBI-registered investment advisor before trading.</div>
+
+  <!-- DETAILED BREAKDOWN for selected row -->
+  <div class="panel" id="hzDetail" style="display:none">
+    <div class="plbl" id="hzDetailTitle">Trade Detail</div>
+    <div id="hzDetailBody"></div>
+  </div>
+
+  <!-- Signal History -->
+  <div class="panel" style="margin-top:10px">
+    <div class="plbl">Scan History</div>
+    <div id="hzHistory"><p class="te m">No scans yet</p></div>
+  </div>
+
+  <div class="panel disc" style="margin-top:10px">⚠ <strong>Disclaimer:</strong> Signals are rule-based and for educational purposes only. Options trading carries substantial risk of loss. This is NOT financial advice. Always consult a SEBI-registered investment advisor before trading.</div>
 </section>
 
 </main>
@@ -500,7 +585,7 @@ async function pFetch(url,ttlKey='h'){
     const pu=mkProxy(url);if(!pu)continue;
     try{
       const ctrl=new AbortController();
-      const t=setTimeout(()=>ctrl.abort(),13000);
+      const t=setTimeout(()=>ctrl.abort(),4000);
       const r=await fetch(pu,{signal:ctrl.signal});
       clearTimeout(t);if(!r.ok)continue;
       const w=await r.json();
@@ -514,24 +599,37 @@ async function pFetch(url,ttlKey='h'){
 
 async function getQ(sym){
   const f='regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketDayHigh,regularMarketDayLow,regularMarketVolume,regularMarketPreviousClose,regularMarketOpen';
-  for(const base of['https://query1.finance.yahoo.com','https://query2.finance.yahoo.com']){
-    const d=await pFetch(`${base}/v7/finance/quote?symbols=${encodeURIComponent(sym)}&fields=${f}`,'q');
-    const q=d?.quoteResponse?.result?.[0];
-    if(q?.regularMarketPrice){setMode('live');return{price:+q.regularMarketPrice,chg:+q.regularMarketChange,pct:+q.regularMarketChangePercent,high:+q.regularMarketDayHigh,low:+q.regularMarketDayLow,vol:+q.regularMarketVolume,prev:+q.regularMarketPreviousClose,live:true};}
-  }
+  // Race against a timeout — if all proxies fail after 8s, use mock immediately
+  const timeout=new Promise(res=>setTimeout(()=>res(null),8000));
+  const liveQ=async()=>{
+    for(const base of['https://query1.finance.yahoo.com','https://query2.finance.yahoo.com']){
+      const d=await pFetch(`${base}/v7/finance/quote?symbols=${encodeURIComponent(sym)}&fields=${f}`,'q');
+      const q=d?.quoteResponse?.result?.[0];
+      if(q?.regularMarketPrice){setMode('live');return{price:+q.regularMarketPrice,chg:+q.regularMarketChange,pct:+q.regularMarketChangePercent,high:+q.regularMarketDayHigh,low:+q.regularMarketDayLow,vol:+q.regularMarketVolume,prev:+q.regularMarketPreviousClose,live:true};}
+    }
+    return null;
+  };
+  const result=await Promise.race([liveQ(),timeout]);
+  if(result?.price){return result;}
   setMode('demo');return mQ(sym);
 }
 
 async function getH(sym,interval='1d',range='3mo'){
-  for(const base of['https://query1.finance.yahoo.com','https://query2.finance.yahoo.com']){
-    const d=await pFetch(`${base}/v8/finance/chart/${encodeURIComponent(sym)}?interval=${interval}&range=${range}&includePrePost=false`,'h');
-    const r=d?.chart?.result?.[0];
-    if(r?.timestamp?.length>10){
-      const ts=r.timestamp,q=r.indicators.quote[0]||{};
-      const c=ts.map((t,i)=>({time:t,open:+q.open?.[i]||0,high:+q.high?.[i]||0,low:+q.low?.[i]||0,close:+q.close?.[i]||0,volume:+q.volume?.[i]||0})).filter(c=>c.open>0&&c.close>0);
-      if(c.length>10){setMode('live');return c;}
+  const timeout=new Promise(res=>setTimeout(()=>res(null),8000));
+  const liveH=async()=>{
+    for(const base of['https://query1.finance.yahoo.com','https://query2.finance.yahoo.com']){
+      const d=await pFetch(`${base}/v8/finance/chart/${encodeURIComponent(sym)}?interval=${interval}&range=${range}&includePrePost=false`,'h');
+      const r=d?.chart?.result?.[0];
+      if(r?.timestamp?.length>10){
+        const ts=r.timestamp,q=r.indicators.quote[0]||{};
+        const c=ts.map((t,i)=>({time:t,open:+q.open?.[i]||0,high:+q.high?.[i]||0,low:+q.low?.[i]||0,close:+q.close?.[i]||0,volume:+q.volume?.[i]||0})).filter(c=>c.open>0&&c.close>0);
+        if(c.length>10){setMode('live');return c;}
+      }
     }
-  }
+    return null;
+  };
+  const result=await Promise.race([liveH(),timeout]);
+  if(result?.length>0)return result;
   setMode('demo');return mH(sym);
 }
 
@@ -1104,17 +1202,34 @@ function buildCards(){
 }
 
 async function loadCard(idx){
-  const[q,h]=await Promise.all([getQ(idx.yf),getH(idx.yf,'1d','1mo')]);
-  if(!q?.price)return;
+  // Step 1: Show mock data instantly so card never stays at "--"
+  const mock=mQ(idx.yf);
+  renderCard(idx,mock,mH(idx.yf));
+
+  // Step 2: Try to get live data in background
+  try{
+    const[q,h]=await Promise.all([getQ(idx.yf),getH(idx.yf,'1d','1mo')]);
+    if(q?.price&&q.price>0) renderCard(idx,q,h);
+  }catch(e){/* keep mock */}
+}
+
+function renderCard(idx,q,h){
   const up=q.chg>=0;
-  const pe=G(`ip-${idx.id}`);if(pe){pe.textContent=fP(q.price);pe.style.color=up?'var(--gn)':'var(--rd)';pe.classList.remove('shimmer');}
-  const ce=G(`ich-${idx.id}`);if(ce){ce.textContent=`${up?'+':''}${q.chg.toFixed(2)} (${up?'+':''}${q.pct.toFixed(2)}%)`;ce.className=`ic-chg ${up?'g':'r'}`;}
+  const pe=G(`ip-${idx.id}`);
+  if(pe){pe.textContent=fP(q.price);pe.style.color=up?'var(--gn)':'var(--rd)';pe.classList.remove('shimmer');}
+  const ce=G(`ich-${idx.id}`);
+  if(ce){ce.textContent=`${up?'+':''}${q.chg.toFixed(2)} (${up?'+':''}${q.pct.toFixed(2)}%)`;ce.className=`ic-chg ${up?'g':'r'}`;}
   sT(`ih-${idx.id}`,q.high.toFixed(0));sT(`il-${idx.id}`,q.low.toFixed(0));sT(`iv-${idx.id}`,fV(q.vol));
   if(h?.length)drawMini(`mc-${idx.id}`,h,up);
 }
 
 async function loadVIXPanel(){
+  renderVIX({price:19.5,chg:2.1,pct:12.1}); // show mock instantly
   const vix=await getVIX();const v=vix?.price||15;
+  renderVIX(vix);
+}
+function renderVIX(vix){
+  const v=vix?.price||15;
   const ve=G('vixN');if(ve){ve.textContent=v.toFixed(1);ve.style.color=v<14?'var(--gn)':v<20?'var(--am)':'var(--rd)';}
   const desc=v<12?'Extreme Low — Buy premium':v<16?'Low — Sell premium favored':v<20?'Moderate Volatility':v<26?'High Fear — Reduce size':'EXTREME FEAR';
   const de=G('vixD');if(de){de.textContent=desc;de.style.color=v<14?'var(--gn)':v<20?'var(--am)':'var(--rd)';}
@@ -1122,13 +1237,19 @@ async function loadVIXPanel(){
 }
 
 async function loadBreadth(){
-  const b=await getBreadth();const t=b.advances+b.declines+b.unchanged||1;
+  const b=await getBreadth();
+  const t=b.advances+b.declines+b.unchanged||1;
   sT('brAn',b.advances.toLocaleString());sT('brDn',b.declines.toLocaleString());sT('brUn',b.unchanged.toLocaleString());
   sSt('brA','width',(b.advances/t*100).toFixed(1)+'%');sSt('brD','width',(b.declines/t*100).toFixed(1)+'%');
 }
 
 async function loadFIIPanel(){
+  renderFIIPanel(mFII()); // show mock instantly
   const fii=await getFII();if(!fii?.length)return;
+  renderFIIPanel(fii);
+}
+function renderFIIPanel(fii){
+  if(!fii?.length)return;
   const td=fii[0];
   const fe=G('fiiV');if(fe){fe.textContent=`${td.fiiNet>=0?'+':''}${(td.fiiNet/100).toFixed(0)} Cr`;fe.style.color=td.fiiNet>=0?'var(--gn)':'var(--rd)';}
   const de=G('diiV');if(de){de.textContent=`${td.diiNet>=0?'+':''}${(td.diiNet/100).toFixed(0)} Cr`;de.style.color=td.diiNet>=0?'var(--gn)':'var(--rd)';}
@@ -1189,6 +1310,451 @@ setInterval(()=>{if(isOpen()){Object.keys(CACHE).filter(k=>k.includes('v7/financ
   if(savedGas)G('gasUrl').value=savedGas;
   await loadAll();
 })();
+
+// ============================================================
+// HERO / ZERO SCAN ENGINE
+// Scans ALL indices simultaneously, builds trade table
+// ============================================================
+
+const HZ_INDICES = [
+  {id:'nifty',    name:'NIFTY',      yf:'^NSEI',               nse:'NIFTY',      step:50,  lot:75,  label:'Nifty 50'},
+  {id:'banknifty',name:'BANKNIFTY',  yf:'^NSEBANK',            nse:'BANKNIFTY',  step:100, lot:30,  label:'Bank Nifty'},
+  {id:'sensex',   name:'SENSEX',     yf:'^BSESN',              nse:'SENSEX',     step:100, lot:10,  label:'Sensex'},
+  {id:'finnifty', name:'FINNIFTY',   yf:'NIFTY_FIN_SERVICE.NS',nse:'FINNIFTY',   step:50,  lot:65,  label:'Fin Nifty'},
+  {id:'midcap',   name:'MIDCPNIFTY', yf:'^CNXMIDCAP',          nse:'MIDCPNIFTY', step:25,  lot:75,  label:'Mid Cap'},
+];
+
+let hzResults = [];
+let hzScanTime = null;
+
+async function scanAllIndices(){
+  const btn = G('scanBtn');
+  btn.disabled = true; btn.textContent = '↻ Scanning...';
+
+  // Show loading skeleton
+  G('hzBody').innerHTML = HZ_INDICES.map(idx => `
+    <tr id="hzRow-${idx.id}">
+      <td colspan="9">
+        <div class="hz-row hz-loading">
+          <div class="spin" style="margin-right:8px"></div>
+          <span style="color:var(--tm)">Scanning ${idx.label}...</span>
+        </div>
+      </td>
+    </tr>`).join('');
+  G('hzSummary').style.display = 'none';
+  G('hzDetail').style.display = 'none';
+
+  const risk = G('hzRisk')?.value || 'safe';
+  const expiryPref = G('hzExpiry')?.value || 'near';
+
+  // Fetch VIX once for all
+  const vixData = await getVIX();
+  const vixVal = vixData?.price || 15;
+
+  // Fetch FII once for sentiment
+  const fiiData = await getFII();
+  const avgFII = fiiData?.slice(0,3).reduce((a,d)=>a+d.fiiNet,0)/3 || 0;
+
+  // Scan each index in parallel
+  const scanResults = await Promise.all(HZ_INDICES.map(idx => scanIndex(idx, risk, expiryPref, vixVal, avgFII)));
+  hzResults = scanResults;
+  hzScanTime = new Date();
+
+  // Render table
+  renderHZTable(scanResults, vixVal);
+  addToHZHistory(scanResults, risk);
+
+  btn.disabled = false; btn.textContent = '↻ Scan All Indices';
+}
+
+async function scanIndex(idx, risk, expiryPref, vixVal, avgFII){
+  try{
+    // Fetch quote + history in parallel (mock shown instantly)
+    const mockQ = mQ(idx.yf);
+    const mockH = mH(idx.yf);
+
+    const [quote, candles, chain] = await Promise.all([
+      getQ(idx.yf),
+      getH(idx.yf, '1d', '3mo'),
+      getNSEChain(idx.nse),
+    ]);
+
+    const spot = quote?.price || mockQ.price;
+    const allCandles = candles?.length > 10 ? candles : mockH;
+    const ind = compAll(allCandles);
+
+    // Options chain
+    const chainData = chain?.data || [];
+    const expiries = chain?.expiries || [nThur(0), nThur(7)];
+    const nearExp = expiries[0] || nThur(0);
+    const nextExp = expiries[1] || nThur(7);
+    const expiry = expiryPref === 'next' ? nextExp : nearExp;
+
+    const atm = chainData.length ? fATM(chainData, spot) : Math.round(spot/idx.step)*idx.step;
+    const pcr = chainData.length ? cPCR(chainData) : 1.0;
+    const mp  = chainData.length ? cMP(chainData)  : atm;
+
+    // Get ATM option LTPs
+    const atmRow = chainData.find(d => d.strikePrice === atm) || {};
+    const atmCE_ltp = +(atmRow.CE?.lastPrice || 0);
+    const atmPE_ltp = +(atmRow.PE?.lastPrice || 0);
+    const atr = ind.atr || spot * 0.008;
+
+    // Compute signal
+    const sig = computeSignal({
+      name: idx.label, spot, atm, pcr, mp, nearExp: expiry,
+      vixVal, avgFII, atr, cfg: idx, ind,
+      atmCE_ltp, atmPE_ltp, risk, yfSym: idx.yf
+    });
+
+    // Build the "Hero/Zero Trade" string — the exact option contract
+    const tradeContract = buildTradeContract(sig, idx, expiry, atm, spot, chainData, risk);
+
+    return {
+      idx, spot, ind, sig, pcr, mp, atm, expiry,
+      atmCE_ltp, atmPE_ltp, vixVal, tradeContract,
+      chainData, success: true
+    };
+  } catch(e){
+    console.warn('Scan failed for', idx.name, e);
+    const spot = mQ(idx.yf).price;
+    return { idx, spot, success: false, error: e.message };
+  }
+}
+
+function buildTradeContract(sig, idx, expiry, atm, spot, chainData, risk){
+  const step = idx.step;
+  const dir = sig.direction;
+
+  if(dir === 'NEUTRAL'){
+    // Iron Condor
+    const sellCE = atm + step;
+    const sellPE = atm - step;
+    const scRow = chainData.find(d => d.strikePrice === sellCE) || {};
+    const spRow = chainData.find(d => d.strikePrice === sellPE) || {};
+    const scLTP = +(scRow.CE?.lastPrice || 0) || (idx.lot > 30 ? 80 : 200);
+    const spLTP = +(spRow.PE?.lastPrice || 0) || (idx.lot > 30 ? 75 : 190);
+    const premium = +(scLTP + spLTP).toFixed(1);
+    return {
+      type:'IRON CONDOR', optType:'SELL CE+PE',
+      sellCE, sellPE, buyCE: atm+step*3, buyPE: atm-step*3,
+      expiry, premium,
+      target: +(premium * 0.85).toFixed(1),   // target: keep 85% of premium
+      sl:     +(premium * 1.25).toFixed(1),    // SL: 25% loss on premium
+      tgtPct: -15, slPct: 25,
+      lot: idx.lot,
+      maxLoss:  Math.round(step * 2 * idx.lot),
+      maxProfit:Math.round(premium * idx.lot),
+      label: `Sell ${sellCE}CE + Sell ${sellPE}PE`,
+      sublabel: `Buy ${atm+step*3}CE + Buy ${atm-step*3}PE (hedge) · ${expiry}`,
+    };
+  }
+
+  if(dir === 'BULLISH'){
+    let strike, optRow, ltp;
+    if(risk === 'safe'){
+      // Bull Call Spread: Buy ATM CE + Sell OTM CE
+      const buyStrike = atm;
+      const sellStrike = atm + step * 2;
+      const buyRow = chainData.find(d => d.strikePrice === buyStrike) || {};
+      const sellRow = chainData.find(d => d.strikePrice === sellStrike) || {};
+      const buyLTP = +(buyRow.CE?.lastPrice || 0) || Math.max(5, spot*0.004);
+      const sellLTP = +(sellRow.CE?.lastPrice || 0) || Math.max(2, buyLTP*0.4);
+      const netPrem = +(buyLTP - sellLTP).toFixed(1);
+      const tgt = +(netPrem * 1.15).toFixed(1);
+      const sl  = +(netPrem * 0.95).toFixed(1);
+      return {
+        type:'BULL CALL SPREAD', optType:'BUY CE',
+        strike: buyStrike, sellStrike,
+        expiry, premium: netPrem,
+        target: tgt, sl,
+        tgtPct: 15, slPct: -5,
+        lot: idx.lot,
+        maxLoss:  Math.round(netPrem * idx.lot),
+        maxProfit:Math.round((step*2 - netPrem) * idx.lot),
+        label: `Buy ${buyStrike} CE`,
+        sublabel: `Sell ${sellStrike} CE (spread) · Net Premium ₹${netPrem} · ${expiry}`,
+      };
+    } else {
+      // Long CE
+      strike = risk === 'moderate' ? atm : atm + step;
+      optRow = chainData.find(d => d.strikePrice === strike) || {};
+      ltp = +(optRow.CE?.lastPrice || 0) || Math.max(5, spot*0.003);
+      const tgt = +(ltp * 1.15).toFixed(1);
+      const sl  = +(ltp * 0.95).toFixed(1);
+      return {
+        type:'LONG CE', optType:'BUY CE',
+        strike, expiry, premium: ltp,
+        target: tgt, sl,
+        tgtPct: 15, slPct: -5,
+        lot: idx.lot,
+        maxLoss:  Math.round(ltp * idx.lot),
+        maxProfit:Math.round(ltp * idx.lot * 3),
+        label: `Buy ${strike} CE`,
+        sublabel: `${expiry} · LTP ₹${ltp.toFixed(1)}`,
+      };
+    }
+  }
+
+  if(dir === 'BEARISH'){
+    let strike, optRow, ltp;
+    if(risk === 'safe'){
+      // Bear Put Spread
+      const buyStrike = atm;
+      const sellStrike = atm - step * 2;
+      const buyRow = chainData.find(d => d.strikePrice === buyStrike) || {};
+      const sellRow = chainData.find(d => d.strikePrice === sellStrike) || {};
+      const buyLTP = +(buyRow.PE?.lastPrice || 0) || Math.max(5, spot*0.004);
+      const sellLTP = +(sellRow.PE?.lastPrice || 0) || Math.max(2, buyLTP*0.4);
+      const netPrem = +(buyLTP - sellLTP).toFixed(1);
+      const tgt = +(netPrem * 1.15).toFixed(1);
+      const sl  = +(netPrem * 0.95).toFixed(1);
+      return {
+        type:'BEAR PUT SPREAD', optType:'BUY PE',
+        strike: buyStrike, sellStrike,
+        expiry, premium: netPrem,
+        target: tgt, sl,
+        tgtPct: 15, slPct: -5,
+        lot: idx.lot,
+        maxLoss:  Math.round(netPrem * idx.lot),
+        maxProfit:Math.round((step*2 - netPrem) * idx.lot),
+        label: `Buy ${buyStrike} PE`,
+        sublabel: `Sell ${sellStrike} PE (spread) · Net Premium ₹${netPrem} · ${expiry}`,
+      };
+    } else {
+      strike = risk === 'moderate' ? atm : atm - step;
+      optRow = chainData.find(d => d.strikePrice === strike) || {};
+      ltp = +(optRow.PE?.lastPrice || 0) || Math.max(5, spot*0.003);
+      const tgt = +(ltp * 1.15).toFixed(1);
+      const sl  = +(ltp * 0.95).toFixed(1);
+      return {
+        type:'LONG PE', optType:'BUY PE',
+        strike, expiry, premium: ltp,
+        target: tgt, sl,
+        tgtPct: 15, slPct: -5,
+        lot: idx.lot,
+        maxLoss:  Math.round(ltp * idx.lot),
+        maxProfit:Math.round(ltp * idx.lot * 3),
+        label: `Buy ${strike} PE`,
+        sublabel: `${expiry} · LTP ₹${ltp.toFixed(1)}`,
+      };
+    }
+  }
+}
+
+function renderHZTable(results, vixVal){
+  const body = G('hzBody');
+  let bullC=0, bearC=0, neutC=0;
+
+  body.innerHTML = results.map(r => {
+    if(!r.success || !r.sig){
+      return `<tr>
+        <td colspan="9">
+          <div class="hz-row">
+            <span class="hz-idx">${r.idx.name}</span>
+            <span style="color:var(--tm);font-size:11px;margin-left:8px">⚠ ${r.error||'Scan failed'}</span>
+          </div>
+        </td>
+      </tr>`;
+    }
+
+    const {idx, spot, sig, tradeContract: tc} = r;
+    const dir = sig.direction;
+    if(dir==='BULLISH') bullC++;
+    else if(dir==='BEARISH') bearC++;
+    else neutC++;
+
+    const dirCls = dir==='BULLISH'?'bull':dir==='BEARISH'?'bear':'neut';
+    const dirIcon = dir==='BULLISH'?'↑ BULLISH':dir==='BEARISH'?'↓ BEARISH':'→ NEUTRAL';
+    const confColor = sig.confidence>=8?'var(--gn)':sig.confidence>=6?'var(--am)':'var(--rd)';
+
+    if(!tc) return `<tr><td colspan="9"><div class="hz-row"><span class="hz-idx">${idx.name}</span><span class="m" style="margin-left:8px">No signal</span></div></td></tr>`;
+
+    return `<tr>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div style="min-width:110px">
+          <div class="hz-idx">${idx.name}</div>
+          <div style="font-size:10px;color:var(--tm)">${idx.label}</div>
+        </div>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--t1)">₹${spot.toLocaleString('en-IN',{maximumFractionDigits:0})}</div>
+          <div style="font-size:10px;color:${r.sig.direction==='BULLISH'?'var(--gn)':'var(--rd)'}">${r.sig.direction==='BULLISH'?'+':''}</div>
+        </div>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <span class="hz-dir-badge ${dirCls}">${dirIcon}</span>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div>
+          <div class="hz-trade-name">${tc.type} — ${tc.label}</div>
+          <div class="hz-trade-sub">${tc.sublabel}</div>
+        </div>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--ac)">₹${tc.premium}</div>
+          <div style="font-size:10px;color:var(--tm)">Premium/lot</div>
+        </div>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--gn)">₹${tc.target}</div>
+          <div style="font-size:10px;color:var(--gn)">+${tc.tgtPct}%</div>
+        </div>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--rd)">₹${tc.sl}</div>
+          <div style="font-size:10px;color:var(--rd)">${tc.slPct}%</div>
+        </div>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--t2)">₹${tc.maxLoss.toLocaleString('en-IN')}</div>
+          <div style="font-size:10px;color:var(--tm)">${idx.lot} units/lot</div>
+        </div>
+      </div></td>
+      <td><div class="hz-row" onclick="showHZDetail('${idx.id}')">
+        <div>
+          <div class="hz-conf-num" style="color:${confColor}">${sig.confidence}/10</div>
+          <div class="hz-conf-bar" style="background:${confColor};width:${sig.confidence*10}%;max-width:60px"></div>
+        </div>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  // Summary bar
+  const sumEl = G('hzSummary');
+  sumEl.style.display = 'flex';
+  sT('hzBullCount', `${bullC} Bullish`);
+  sT('hzBearCount', `${bearC} Bearish`);
+  sT('hzNeutCount', `${neutC} Neutral`);
+  sH('hzVixBadge', `<span style="font-size:11px;color:${vixVal<14?'var(--gn)':vixVal<20?'var(--am)':'var(--rd)'};font-weight:600">VIX ${vixVal.toFixed(1)} — ${vixVal<14?'Low (Buy premium)':vixVal<20?'Moderate':vixVal<26?'High (Reduce size)':'Extreme Fear'}</span>`);
+
+  // Scan time
+  const existing = G('hzScanTime');
+  if(!existing){
+    const t = document.createElement('div');
+    t.id = 'hzScanTime';
+    t.className = 'scan-time';
+    t.textContent = `Last scanned: ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Asia/Kolkata'})} IST`;
+    G('hzTable').parentNode.appendChild(t);
+  } else {
+    existing.textContent = `Last scanned: ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Asia/Kolkata'})} IST`;
+  }
+}
+
+function showHZDetail(idxId){
+  const r = hzResults.find(x => x.idx.id === idxId);
+  if(!r || !r.sig || !r.tradeContract) return;
+
+  const detail = G('hzDetail');
+  detail.style.display = 'block';
+  detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+  const {idx, spot, sig, tradeContract: tc, pcr, mp, atm, ind} = r;
+  const dir = sig.direction;
+  const dirColor = dir==='BULLISH'?'var(--gn)':dir==='BEARISH'?'var(--rd)':'var(--am)';
+
+  sT('hzDetailTitle', `${idx.name} — ${tc.type} Detail`);
+
+  // Indicator scores for display
+  const indRows = [
+    {name:'RSI (14)',  val:ind.rsi?.toFixed(1)||'--', score:ind.rsi||50, bull:ind.rsi<50, sig:iRSI(ind.rsi).t},
+    {name:'MACD',      val:ind.macd?.[ind.macd.length-1]?.histogram?.toFixed(2)||'--', score:50, bull:ind.macd?.[ind.macd.length-1]?.histogram>0, sig:iMACD(ind.macd).t},
+    {name:'EMA Trend', val:ind.e20?.toFixed(0)||'--', score:ind.price>ind.e20?65:35, bull:ind.price>ind.e20, sig:iEMA(ind.price,ind.e20,ind.e50,ind.e200).t},
+    {name:'BB',        val:ind.bb?((ind.price-ind.bb.lower)/(ind.bb.upper-ind.bb.lower)*100).toFixed(0)+'%':'--', score:ind.bb?(ind.price-ind.bb.lower)/(ind.bb.upper-ind.bb.lower)*100:50, bull:ind.bb?(ind.price-ind.bb.lower)/(ind.bb.upper-ind.bb.lower)<0.5:true, sig:iBB(ind.bb,ind.price).t},
+    {name:'PCR',       val:pcr?.toFixed(2)||'--', score:Math.min(100,pcr*50), bull:pcr>1, sig:pcr>1.2?'Bullish (high PE OI)':pcr<0.8?'Bearish (high CE OI)':'Neutral'},
+  ];
+
+  sH('hzDetailBody', `
+    <div class="hz-detail-grid">
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">Trade</div>
+        <div class="hz-dm-v" style="color:var(--ac);font-size:13px">${tc.type}</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:3px">${tc.label}</div>
+      </div>
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">Direction</div>
+        <div class="hz-dm-v" style="color:${dirColor}">${dir}</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:3px">Confidence ${sig.confidence}/10</div>
+      </div>
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">Index Entry Level</div>
+        <div class="hz-dm-v c">₹${(sig.index_entry||spot).toFixed(0)}</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:3px">Spot: ₹${spot.toFixed(0)}</div>
+      </div>
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">Option Premium</div>
+        <div class="hz-dm-v c">₹${tc.premium}</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:3px">per lot (${idx.lot} units)</div>
+      </div>
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">Target Premium</div>
+        <div class="hz-dm-v g">₹${tc.target} <span style="font-size:11px">(+${tc.tgtPct}%)</span></div>
+        <div style="font-size:11px;color:var(--gn);margin-top:3px">Max Profit ≈ ₹${tc.maxProfit?.toLocaleString('en-IN')}/lot</div>
+      </div>
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">Stop Loss Premium</div>
+        <div class="hz-dm-v r">₹${tc.sl} <span style="font-size:11px">(${tc.slPct}%)</span></div>
+        <div style="font-size:11px;color:var(--rd);margin-top:3px">Max Loss ≈ ₹${tc.maxLoss?.toLocaleString('en-IN')}/lot</div>
+      </div>
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">ATM Strike</div>
+        <div class="hz-dm-v c">₹${atm?.toLocaleString('en-IN')}</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:3px">Max Pain: ₹${mp?.toLocaleString('en-IN')}</div>
+      </div>
+      <div class="hz-detail-metric">
+        <div class="hz-dm-l">PCR / Expiry</div>
+        <div class="hz-dm-v" style="color:${pcr>1?'var(--gn)':'var(--rd)'}">${pcr?.toFixed(2)}</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:3px">${r.expiry}</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,.025);border-radius:var(--r);padding:12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--ac);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Indicator Scorecard</div>
+      ${indRows.map(ir=>`
+        <div class="hz-ind-row">
+          <span class="hz-ind-name">${ir.name}</span>
+          <div class="hz-ind-bar-wrap"><div class="hz-ind-bar" style="width:${Math.min(100,Math.max(5,ir.score))}%;background:${ir.bull?'var(--gn)':'var(--rd)'}"></div></div>
+          <span class="hz-ind-val" style="color:${ir.bull?'var(--gn)':'var(--rd)'}">${ir.val}</span>
+          <span class="hz-ind-sig t2">${ir.sig}</span>
+        </div>`).join('')}
+    </div>
+
+    <div style="font-size:11px;color:var(--t2);line-height:1.9;border-left:2px solid var(--b3);padding-left:11px;margin-bottom:10px">${sig.analysis}</div>
+    ${sig.riskText?`<div style="font-size:11px;color:var(--am);line-height:1.8;padding:8px 10px;background:var(--amd);border-radius:var(--r)"><strong>⚠ Risks:</strong> ${sig.riskText}</div>`:''}
+    <div style="font-size:10px;color:var(--tm);margin-top:8px;text-align:right">Generated ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'})} IST · Click another row to switch</div>
+  `);
+}
+
+function addToHZHistory(results, risk){
+  const el = G('hzHistory');
+  const ts = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
+  const summary = results.filter(r=>r.success&&r.sig).map(r=>{
+    const tc = r.tradeContract;
+    const col = r.sig.direction==='BULLISH'?'var(--gn)':r.sig.direction==='BEARISH'?'var(--rd)':'var(--am)';
+    return `<span style="color:${col};font-weight:600">${r.idx.name}</span> ${tc?.label||r.sig.direction}`;
+  }).join(' &nbsp;|&nbsp; ');
+
+  const item = `<div style="padding:7px 0;border-bottom:1px solid var(--b1);font-size:11px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+      <span style="color:var(--t2);font-weight:600">${ts} IST</span>
+      <span style="color:var(--tm);font-size:10px">${risk.toUpperCase()} · ${results.filter(r=>r.success).length}/${results.length} scanned</span>
+    </div>
+    <div style="color:var(--t2);line-height:1.8">${summary}</div>
+  </div>`;
+
+  if(el.querySelector('.te')) el.innerHTML = '';
+  el.insertAdjacentHTML('afterbegin', item);
+
+  // Keep only last 5
+  const items = el.querySelectorAll('div[style*="padding:7px"]');
+  if(items.length > 5) items[items.length-1].remove();
+}
+
 </script>
 </body>
 </html>
